@@ -63,6 +63,12 @@ soplos-theme-manager
 ### Avatar Manager
 ![Avatar Manager](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/main/assets/screenshots/screenshot3.png)
 
+### Panel Configuration
+![Panel Configuration](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/main/assets/screenshots/screenshot4.png)
+
+### Dock Manager
+![Dock Manager](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/main/assets/screenshots/screenshot5.png)
+
 ## 🌐 Supported Languages
 
 | Language | Code |
