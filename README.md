@@ -55,19 +55,19 @@ soplos-theme-manager
 ## 📸 Screenshots
 
 ### Theme Gallery
-![Theme Gallery](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/main/assets/screenshots/screenshot1.png)
+![Theme Gallery](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/master/assets/screenshots/screenshot1.png)
 
 ### Wallpaper Browser
-![Wallpaper Browser](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/main/assets/screenshots/screenshot2.png)
+![Wallpaper Browser](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/master/assets/screenshots/screenshot2.png)
 
 ### Avatar Manager
-![Avatar Manager](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/main/assets/screenshots/screenshot3.png)
+![Avatar Manager](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/master/assets/screenshots/screenshot3.png)
 
 ### Panel Configuration
-![Panel Configuration](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/main/assets/screenshots/screenshot4.png)
+![Panel Configuration](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/master/assets/screenshots/screenshot4.png)
 
 ### Dock Manager
-![Dock Manager](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/main/assets/screenshots/screenshot5.png)
+![Dock Manager](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/master/assets/screenshots/screenshot5.png)
 
 ## 🌐 Supported Languages
 
