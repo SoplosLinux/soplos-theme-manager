@@ -1,0 +1,1006 @@
+import gi
+import locale
+import subprocess
+import threading
+import time
+from pathlib import Path
+from typing import Optional
+
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk, Gdk, GLib, GdkPixbuf, Pango
+
+from core.i18n_manager import _
+from utils.logger import logger
+
+CHANNEL      = 'xfce4-panel'
+PLUGINS_DIR  = Path('/usr/share/xfce4/panel/plugins')
+ICON_SIZE    = 24
+
+# Derive locale language code for plugin name localisation
+_loc = locale.getdefaultlocale()[0] or ''
+_LANG      = _loc                        # e.g. 'es_ES'
+_LANG_SHORT = _loc.split('_')[0] if _loc else ''  # e.g. 'es'
+
+# p values confirmed from actual Soplos theme XMLs:
+#   p=6  → top   (Modern_Black/White, default.xml panel-1)
+#   p=8  → bottom (Classic_Black/White, Special, Unity — x is the horizontal CENTER)
+#   p=1  → right (Special, Unity — x is near the right edge)
+#   p=10 → left  (default.xml panel-2 dock)
+_POSITIONS = [
+    (6,  'top'),
+    (8,  'bottom'),
+    (10, 'left'),
+    (1,  'right'),
+]
+_EDGE_FROM_P = {
+    0:  'bottom',  # floating
+    1:  'right',
+    2:  'right',
+    3:  'bottom',
+    4:  'bottom',
+    5:  'left',
+    6:  'top',
+    7:  'top',
+    8:  'bottom',
+    9:  'right',
+    10: 'left',
+    11: 'left',
+    12: 'bottom',
+}
+
+
+# ── xfconf helpers ────────────────────────────────────────────────────────────
+
+def _xfq(*args, timeout=5) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        ['xfconf-query', '-c', CHANNEL] + list(args),
+        capture_output=True, text=True, timeout=timeout
+    )
+
+def _get(prop: str) -> Optional[str]:
+    r = _xfq('-p', prop)
+    return r.stdout.strip() if r.returncode == 0 else None
+
+def _get_array(prop: str) -> list:
+    r = _xfq('-p', prop)
+    ids = []
+    for line in r.stdout.splitlines():
+        line = line.strip()
+        try:
+            ids.append(int(line))
+        except ValueError:
+            pass
+    return ids
+
+def _set(prop: str, type_: str, value: str) -> bool:
+    r = _xfq('-p', prop, '--create', '-t', type_, '-s', value)
+    return r.returncode == 0
+
+def _set_array(prop: str, type_: str, values: list) -> bool:
+    if not values:
+        return True
+    # --force-array (-a) is required so that a single-element list is written as
+    # an xfconf array and not a scalar; without it xfce4-panel cannot read /panels.
+    args = ['-p', prop, '--create', '--force-array']
+    for v in values:
+        args += ['-t', type_, '-s', str(v)]
+    r = _xfq(*args)
+    return r.returncode == 0
+
+def _remove(prop: str):
+    _xfq('-p', prop, '-r', '--recursive')
+
+def _panel_ids() -> list:
+    r = _xfq('-p', '/panels')
+    ids = []
+    for line in r.stdout.splitlines():
+        try:
+            ids.append(int(line.strip()))
+        except ValueError:
+            pass
+    return ids or [1]
+
+
+# ── Plugin desktop file reader ────────────────────────────────────────────────
+
+def _parse_desktop(path: Path) -> dict:
+    keys = {}
+    try:
+        for line in path.read_text(errors='replace').splitlines():
+            if '=' in line and not line.startswith('#'):
+                k, _, v = line.partition('=')
+                keys[k.strip()] = v.strip()
+    except Exception:
+        pass
+    return keys
+
+def _plugin_name(keys: dict, fallback: str) -> str:
+    for k in (f'Name[{_LANG}]', f'Name[{_LANG_SHORT}]', 'Name'):
+        if keys.get(k):
+            return keys[k]
+    return fallback
+
+def _load_icon(icon_name: str, size: int) -> Optional[GdkPixbuf.Pixbuf]:
+    if not icon_name:
+        return None
+    try:
+        theme = Gtk.IconTheme.get_default()
+        info = theme.lookup_icon(icon_name, size, 0)
+        if info:
+            return info.load_icon()
+    except Exception:
+        pass
+    try:
+        p = Path(icon_name)
+        if p.is_file():
+            return GdkPixbuf.Pixbuf.new_from_file_at_scale(str(p), size, size, True)
+    except Exception:
+        pass
+    return None
+
+def _scan_available_plugins() -> list:
+    """Return list of dicts: {module, name, comment, icon_name} sorted by name."""
+    result = []
+    if not PLUGINS_DIR.exists():
+        return result
+    for f in sorted(PLUGINS_DIR.glob('*.desktop')):
+        keys = _parse_desktop(f)
+        module = keys.get('X-XFCE-Module', '')
+        if not module:
+            continue
+        result.append({
+            'module':   module,
+            'name':     _plugin_name(keys, module),
+            'comment':  keys.get('Comment', ''),
+            'icon':     keys.get('Icon', 'application-x-executable'),
+        })
+    return sorted(result, key=lambda x: x['name'].lower())
+
+
+# ── Panel settings reader ─────────────────────────────────────────────────────
+
+def _read_settings(pk: str) -> dict:
+    # xfce4-panel xfconf layout: /panels/panel-N/prop (panel-N is a child of panels)
+    pos_str = _get(f'/panels/{pk}/position') or ''
+    p_val = 8
+    coords = {}
+    try:
+        for part in pos_str.split(';'):
+            if '=' in part:
+                k, v = part.split('=', 1)
+                if k == 'p':
+                    p_val = int(v)
+                else:
+                    coords[k] = int(v)
+    except Exception:
+        pass
+
+    if p_val == 0:
+        # Floating panel: derive edge from x/y position relative to screen
+        try:
+            scr = Gdk.Screen.get_default()
+            sw, sh = scr.get_width(), scr.get_height()
+            cx = coords.get('x', sw // 2)
+            cy = coords.get('y', sh // 2)
+            if cy <= sh // 4:
+                edge = 'top'
+            elif cy >= 3 * sh // 4:
+                edge = 'bottom'
+            elif cx <= sw // 4:
+                edge = 'left'
+            elif cx >= 3 * sw // 4:
+                edge = 'right'
+            else:
+                edge = 'bottom'
+        except Exception:
+            edge = 'bottom'
+    else:
+        edge = _EDGE_FROM_P.get(p_val, 'bottom')
+
+    return {
+        'edge':          edge,
+        'size':          _get(f'/panels/{pk}/size'),
+        'icon_sz':       _get(f'/panels/{pk}/icon-size'),
+        'length':        _get(f'/panels/{pk}/length'),
+        'length_adjust': _get(f'/panels/{pk}/length-adjust'),
+        'nrows':         _get(f'/panels/{pk}/nrows'),
+        'autohide':      _get(f'/panels/{pk}/autohide-behavior'),
+        'dark':          _get('/panels/dark-mode'),
+        'locked':        _get(f'/panels/{pk}/position-locked'),
+        'pos_str':       pos_str,
+    }
+
+def _read_active_plugins(pk: str) -> list:
+    """Return ordered list of dicts: {id, module, name, icon}."""
+    ids = _get_array(f'/panels/{pk}/plugin-ids')
+    plugins = []
+    for pid in ids:
+        module = _get(f'/plugins/plugin-{pid}') or ''
+        desktop = PLUGINS_DIR / f'{module}.desktop'
+        if desktop.exists():
+            keys = _parse_desktop(desktop)
+            name = _plugin_name(keys, module)
+            icon = keys.get('Icon', 'application-x-executable')
+        else:
+            name = module
+            icon = 'application-x-executable'
+        plugins.append({'id': pid, 'module': module, 'name': name, 'icon': icon})
+    return plugins
+
+_SNAP_P = {'top': 6, 'bottom': 8, 'left': 10, 'right': 1}
+
+def _build_position_string(edge: str, align: int, length: int, size: int = 42) -> str:
+    """Return a position string for xfce4-panel.
+
+    Full-width panels (length >= 100) use the snapped p values (p=6/8/10/1) so
+    the WM receives _NET_WM_STRUT hints and windows don't maximize under them.
+
+    Partial-width (dock-style) panels use p=0 floating with explicit center
+    coordinates, which is the only mode where XFCE4 reliably respects placement
+    across different hardware and screen resolutions.
+    """
+    if length >= 100:
+        # Snapped panels tell the WM to reserve screen space (struts).
+        p = _SNAP_P.get(edge, 8)
+        return f'p={p};x=0;y=0'
+
+    # Partial-width: floating panel, center coordinates.
+    try:
+        screen = Gdk.Screen.get_default()
+        sw = screen.get_width()
+        sh = screen.get_height()
+    except Exception:
+        sw, sh = 1920, 1080
+
+    if edge in ('top', 'bottom'):
+        panel_w = max(1, int(sw * length / 100))
+        cy      = size // 2 if edge == 'top' else sh - size // 2
+        if align == 0:
+            cx = panel_w // 2
+        elif align == 2:
+            cx = sw - panel_w // 2
+        else:
+            cx = sw // 2
+    else:
+        panel_h = max(1, int(sh * length / 100))
+        cx      = size // 2 if edge == 'left' else sw - size // 2
+        if align == 0:
+            cy = panel_h // 2
+        elif align == 2:
+            cy = sh - panel_h // 2
+        else:
+            cy = sh // 2
+
+    return f'p=0;x={cx};y={cy}'
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class PanelTab(Gtk.Box):
+
+    def __init__(self, config, parent_window):
+        super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        self.config         = config
+        self.parent_window  = parent_window
+        self._panel_ids     = []
+        self._current_panel = 'panel-1'
+        self._old_pos_str   = ''
+        self._old_edge      = 'bottom'
+        self._available     = []   # list of plugin dicts from system
+
+        self._loaded = False
+        self._setup_ui()
+        self.connect('map', self._on_mapped)
+
+    # ── UI construction ───────────────────────────────────────────────────────
+
+    def _setup_ui(self):
+        # ── Main horizontal split: left=settings  right=plugins ───────────────
+        body = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        self.pack_start(body, True, True, 0)
+
+        # ════════════════════════════════════════════
+        # LEFT COLUMN — panel settings (fixed width)
+        # ════════════════════════════════════════════
+        left_col = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        left_col.set_size_request(250, -1)
+        body.pack_start(left_col, False, False, 0)
+
+        # Panel selector row — always visible
+        self._selector_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        self._selector_row.set_margin_start(14)
+        self._selector_row.set_margin_end(14)
+        self._selector_row.set_margin_top(10)
+        self._selector_row.set_margin_bottom(6)
+        left_col.pack_start(self._selector_row, False, False, 0)
+
+        slbl = Gtk.Label(label=_("Panel:"))
+        slbl.get_style_context().add_class('dim-label')
+        self._selector_row.pack_start(slbl, False, False, 0)
+
+        self._panel_combo = Gtk.ComboBoxText()
+        self._panel_combo.connect('changed', self._on_panel_changed)
+        self._selector_row.pack_start(self._panel_combo, True, True, 0)
+
+        new_btn = Gtk.Button()
+        new_btn.add(Gtk.Image.new_from_icon_name('list-add', Gtk.IconSize.BUTTON))
+        new_btn.set_tooltip_text(_("Add new panel"))
+        new_btn.connect('clicked', self._on_new_panel)
+        self._selector_row.pack_start(new_btn, False, False, 0)
+
+        self._del_panel_btn = Gtk.Button()
+        self._del_panel_btn.add(Gtk.Image.new_from_icon_name('list-remove', Gtk.IconSize.BUTTON))
+        self._del_panel_btn.set_tooltip_text(_("Delete this panel"))
+        self._del_panel_btn.connect('clicked', self._on_delete_panel)
+        self._del_panel_btn.set_sensitive(False)
+        self._selector_row.pack_start(self._del_panel_btn, False, False, 0)
+
+        # Settings grid
+        grid = Gtk.Grid()
+        grid.set_row_spacing(10)
+        grid.set_column_spacing(12)
+        grid.set_margin_top(14)
+        grid.set_margin_bottom(10)
+        grid.set_margin_start(14)
+        grid.set_margin_end(14)
+        left_col.pack_start(grid, False, False, 0)
+
+        def row(r, label_text, widget):
+            lbl = Gtk.Label(label=label_text)
+            lbl.set_halign(Gtk.Align.END)
+            lbl.get_style_context().add_class('dim-label')
+            grid.attach(lbl, 0, r, 1, 1)
+            widget.set_hexpand(True)
+            grid.attach(widget, 1, r, 1, 1)
+
+        self._pos_combo = Gtk.ComboBoxText()
+        for lbl in [_("Top"), _("Bottom"), _("Left"), _("Right")]:
+            self._pos_combo.append_text(lbl)
+        self._pos_combo.set_active(1)
+        row(0, _("Position:"), self._pos_combo)
+
+        self._align_combo = Gtk.ComboBoxText()
+        for lbl in [_("Left"), _("Center"), _("Right")]:
+            self._align_combo.append_text(lbl)
+        self._align_combo.set_active(1)
+        row(1, _("Alignment:"), self._align_combo)
+
+        self._size_spin = Gtk.SpinButton.new_with_range(16, 128, 1)
+        self._size_spin.set_value(42)
+        row(2, _("Height (px):"), self._size_spin)
+
+        self._icon_spin = Gtk.SpinButton.new_with_range(8, 96, 1)
+        self._icon_spin.set_value(24)
+        row(3, _("Icon size (px):"), self._icon_spin)
+
+        self._length_spin = Gtk.SpinButton.new_with_range(1, 100, 1)
+        self._length_spin.set_value(100)
+        row(4, _("Length (%):"), self._length_spin)
+
+        self._rows_spin = Gtk.SpinButton.new_with_range(1, 6, 1)
+        self._rows_spin.set_value(1)
+        row(5, _("Rows:"), self._rows_spin)
+
+        self._autohide_combo = Gtk.ComboBoxText()
+        for opt in [_("Never"), _("Intelligent"), _("Always")]:
+            self._autohide_combo.append_text(opt)
+        self._autohide_combo.set_active(0)
+        row(6, _("Auto-hide:"), self._autohide_combo)
+
+        dark_box = Gtk.Box()
+        self._dark_switch = Gtk.Switch()
+        self._dark_switch.set_halign(Gtk.Align.START)
+        dark_box.pack_start(self._dark_switch, False, False, 0)
+        row(7, _("Dark mode:"), dark_box)
+
+        lock_box = Gtk.Box()
+        self._lock_switch = Gtk.Switch()
+        self._lock_switch.set_halign(Gtk.Align.START)
+        lock_box.pack_start(self._lock_switch, False, False, 0)
+        row(8, _("Lock position:"), lock_box)
+
+        # Apply button at the bottom of left column
+        left_col.pack_start(Gtk.Separator(), False, False, 0)
+
+        apply_bar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        apply_bar.set_halign(Gtk.Align.CENTER)
+        apply_bar.set_margin_top(10)
+        apply_bar.set_margin_bottom(10)
+        left_col.pack_end(apply_bar, False, False, 0)
+
+        self.apply_btn = Gtk.Button()
+        apply_inner = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        apply_inner.pack_start(
+            Gtk.Image.new_from_icon_name('object-select-symbolic', Gtk.IconSize.BUTTON),
+            False, False, 0
+        )
+        apply_inner.pack_start(Gtk.Label(label=_("Save & Apply")), False, False, 0)
+        self.apply_btn.add(apply_inner)
+        self.apply_btn.get_style_context().add_class('suggested-action')
+        self.apply_btn.connect('clicked', self._on_apply)
+        apply_bar.pack_start(self.apply_btn, False, False, 0)
+
+        body.pack_start(
+            Gtk.Separator(orientation=Gtk.Orientation.VERTICAL), False, False, 0
+        )
+
+        # ════════════════════════════════════════════
+        # RIGHT COLUMN — plugin management (expands)
+        # ════════════════════════════════════════════
+        right_col = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        body.pack_start(right_col, True, True, 0)
+
+        # Header
+        ph_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        ph_box.set_margin_start(12)
+        ph_box.set_margin_top(8)
+        ph_box.set_margin_bottom(6)
+        ph_box.pack_start(
+            Gtk.Image.new_from_icon_name('preferences-desktop', Gtk.IconSize.MENU),
+            False, False, 0
+        )
+        ph_lbl = Gtk.Label(label=_("Panel Plugins"))
+        ph_lbl.get_style_context().add_class('theme-card-label')
+        ph_lbl.set_halign(Gtk.Align.START)
+        ph_box.pack_start(ph_lbl, False, False, 0)
+        right_col.pack_start(ph_box, False, False, 0)
+        right_col.pack_start(Gtk.Separator(), False, False, 0)
+
+        # Two-pane plugin split
+        plug_hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        right_col.pack_start(plug_hbox, True, True, 0)
+
+        # ── Active plugins list ───────────────────────────────────────────────
+        act_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        act_box.set_size_request(220, -1)
+        plug_hbox.pack_start(act_box, False, False, 0)
+
+        act_hdr = Gtk.Box()
+        act_hdr.set_margin_start(8)
+        act_hdr.set_margin_top(6)
+        act_hdr.set_margin_bottom(4)
+        act_lbl = Gtk.Label(label=_("Active (ordered)"))
+        act_lbl.get_style_context().add_class('dim-label')
+        act_lbl.set_halign(Gtk.Align.START)
+        act_hdr.pack_start(act_lbl, True, True, 0)
+        act_box.pack_start(act_hdr, False, False, 0)
+        act_box.pack_start(Gtk.Separator(), False, False, 0)
+
+        sc_act = Gtk.ScrolledWindow()
+        sc_act.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        act_box.pack_start(sc_act, True, True, 0)
+
+        self._active_store = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str, int)
+        self._active_view  = Gtk.TreeView(model=self._active_store)
+        self._active_view.set_headers_visible(False)
+        self._active_view.set_reorderable(True)
+
+        col_ic = Gtk.TreeViewColumn()
+        cr_ic  = Gtk.CellRendererPixbuf()
+        col_ic.pack_start(cr_ic, False)
+        col_ic.add_attribute(cr_ic, 'pixbuf', 0)
+        self._active_view.append_column(col_ic)
+
+        col_nm = Gtk.TreeViewColumn()
+        cr_nm  = Gtk.CellRendererText()
+        cr_nm.set_property('ellipsize', Pango.EllipsizeMode.END)
+        col_nm.pack_start(cr_nm, True)
+        col_nm.add_attribute(cr_nm, 'text', 1)
+        self._active_view.append_column(col_nm)
+
+        sc_act.add(self._active_view)
+
+        act_btns = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        act_btns.set_halign(Gtk.Align.CENTER)
+        act_btns.set_margin_top(6)
+        act_btns.set_margin_bottom(8)
+        act_box.pack_start(act_btns, False, False, 0)
+
+        for icon_name, tip, cb in [
+            ('go-up',       _("Move Up"),   self._on_move_up),
+            ('go-down',     _("Move Down"), self._on_move_down),
+            ('list-remove', _("Remove"),    self._on_remove),
+        ]:
+            btn = Gtk.Button()
+            btn.add(Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.BUTTON))
+            btn.set_tooltip_text(tip)
+            btn.connect('clicked', cb)
+            act_btns.pack_start(btn, False, False, 0)
+
+        plug_hbox.pack_start(
+            Gtk.Separator(orientation=Gtk.Orientation.VERTICAL), False, False, 0
+        )
+
+        # ── Available plugins list ────────────────────────────────────────────
+        avail_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        plug_hbox.pack_start(avail_box, True, True, 0)
+
+        avail_hdr = Gtk.Box()
+        avail_hdr.set_margin_start(8)
+        avail_hdr.set_margin_top(6)
+        avail_hdr.set_margin_bottom(4)
+        avail_lbl = Gtk.Label(label=_("Available"))
+        avail_lbl.get_style_context().add_class('dim-label')
+        avail_lbl.set_halign(Gtk.Align.START)
+        avail_hdr.pack_start(avail_lbl, True, True, 0)
+        avail_box.pack_start(avail_hdr, False, False, 0)
+
+        self._search = Gtk.SearchEntry()
+        self._search.set_placeholder_text(_("Search plugins…"))
+        self._search.set_margin_start(8)
+        self._search.set_margin_end(8)
+        self._search.set_margin_bottom(4)
+        self._search.connect('search-changed', lambda w: self._avail_filter.refilter())
+        avail_box.pack_start(self._search, False, False, 0)
+
+        avail_box.pack_start(Gtk.Separator(), False, False, 0)
+
+        sc_avail = Gtk.ScrolledWindow()
+        sc_avail.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        avail_box.pack_start(sc_avail, True, True, 0)
+
+        self._avail_store  = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str, str)
+        self._avail_filter = self._avail_store.filter_new()
+        self._avail_filter.set_visible_func(self._filter_func)
+
+        self._avail_view = Gtk.TreeView(model=self._avail_filter)
+        self._avail_view.set_headers_visible(False)
+        self._avail_view.set_tooltip_column(3)
+
+        col_ai = Gtk.TreeViewColumn()
+        cr_ai  = Gtk.CellRendererPixbuf()
+        col_ai.pack_start(cr_ai, False)
+        col_ai.add_attribute(cr_ai, 'pixbuf', 0)
+        self._avail_view.append_column(col_ai)
+
+        col_an = Gtk.TreeViewColumn()
+        cr_an  = Gtk.CellRendererText()
+        cr_an.set_property('ellipsize', Pango.EllipsizeMode.END)
+        col_an.pack_start(cr_an, True)
+        col_an.add_attribute(cr_an, 'text', 1)
+        self._avail_view.append_column(col_an)
+
+        sc_avail.add(self._avail_view)
+
+        add_bar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        add_bar.set_halign(Gtk.Align.CENTER)
+        add_bar.set_margin_top(6)
+        add_bar.set_margin_bottom(8)
+        avail_box.pack_start(add_bar, False, False, 0)
+
+        add_btn = Gtk.Button()
+        add_inner = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        add_inner.pack_start(
+            Gtk.Image.new_from_icon_name('list-add', Gtk.IconSize.BUTTON), False, False, 0
+        )
+        add_inner.pack_start(Gtk.Label(label=_("Add to Panel")), False, False, 0)
+        add_btn.add(add_inner)
+        add_btn.connect('clicked', self._on_add)
+        add_bar.pack_start(add_btn, False, False, 0)
+
+    # ── Loading ───────────────────────────────────────────────────────────────
+
+    def _on_mapped(self, _widget):
+        if not self._loaded:
+            self._loaded = True
+            self._load_async()
+
+    def _load_async(self):
+        self.parent_window.show_progress(_("Reading panel settings…"))
+        threading.Thread(target=self._load_worker, daemon=True).start()
+
+    def _load_worker(self):
+        ids        = _panel_ids()
+        pk         = f'panel-{ids[0]}'
+        settings   = _read_settings(pk)
+        active     = _read_active_plugins(pk)
+        available  = _scan_available_plugins()
+        GLib.idle_add(self._on_load_done, ids, pk, settings, active, available)
+
+    def _on_load_done(self, ids, pk, settings, active, available):
+        self._panel_ids     = ids
+        self._current_panel = pk
+        self._available     = available
+
+        self._panel_combo.handler_block_by_func(self._on_panel_changed)
+        for i in ids:
+            self._panel_combo.append_text(f"Panel {i}")
+        self._panel_combo.set_active(0)
+        self._panel_combo.handler_unblock_by_func(self._on_panel_changed)
+
+        self._del_panel_btn.set_sensitive(len(ids) > 1)
+        self._fill_settings(settings)
+        self._fill_active(active)
+        self._fill_available(available)
+        self.parent_window.hide_progress()
+        return False
+
+    def _fill_settings(self, s: dict):
+        def si(v, d):
+            """Parse int or float string → int, return default on failure.
+            Handles both dot and comma as decimal separator (locale-safe)."""
+            if v is None:
+                return d
+            try:
+                return int(round(float(str(v).replace(',', '.'))))
+            except Exception:
+                return d
+
+        edge_idx = {'top': 0, 'bottom': 1, 'left': 2, 'right': 3}
+        self._old_edge    = s.get('edge', 'bottom')
+        self._old_pos_str = s.get('pos_str', '')
+        self._pos_combo.set_active(edge_idx.get(self._old_edge, 1))
+
+        # Derive alignment from p value: 1/4/7/10=start, 2/5/8/11=center, 3/6/9/12=end, 0=center
+        p_val = 8
+        try:
+            for part in self._old_pos_str.split(';'):
+                if part.startswith('p='):
+                    p_val = int(part[2:])
+        except Exception:
+            pass
+        # Derive alignment from p+x for floating panels; from p for snapped panels.
+        # p=8 bottom-center: x=960=sw//2 → center confirmed from Classic_Black theme.
+        _align_from_p = {
+            0: 1,   # floating → compute below from x
+            1: 1,   # right (E)
+            2: 2,   # right-end
+            3: 2,   # bottom-right
+            4: 0,   # bottom-left
+            5: 1,   # left
+            6: 1,   # top (usually full-width)
+            7: 0,   # top-left
+            8: 1,   # bottom-center (x=sw//2 confirmed)
+            9: 2,   # bottom-right
+            10: 1,  # left/dock
+            11: 1,  # left-center
+            12: 1,  # bottom-center
+        }
+        try:
+            scr = Gdk.Screen.get_default()
+            sw, sh = scr.get_width(), scr.get_height()
+            pos_coords = {}
+            for part in self._old_pos_str.split(';'):
+                if '=' in part:
+                    k, v = part.split('=', 1)
+                    try:
+                        pos_coords[k] = int(v)
+                    except ValueError:
+                        pass
+            edge_now = self._old_edge
+            if edge_now in ('top', 'bottom'):
+                ref = pos_coords.get('x', sw // 2)
+                if ref < sw // 3:
+                    align_idx = 0
+                elif ref > 2 * sw // 3:
+                    align_idx = 2
+                else:
+                    align_idx = 1
+            else:
+                ref = pos_coords.get('y', sh // 2)
+                if ref < sh // 3:
+                    align_idx = 0
+                elif ref > 2 * sh // 3:
+                    align_idx = 2
+                else:
+                    align_idx = 1
+        except Exception:
+            align_idx = _align_from_p.get(p_val, 1)
+        self._old_align = align_idx
+        self._align_combo.set_active(align_idx)
+
+        self._size_spin.set_value(si(s.get('size'), 42))
+        self._icon_spin.set_value(si(s.get('icon_sz'), 24))
+
+        self._orig_length        = si(s.get('length'), 100)
+        self._orig_length_adjust = s.get('length_adjust')
+        self._length_spin.set_value(self._orig_length)
+        self._rows_spin.set_value(si(s.get('nrows'), 1))
+
+        ah = si(s.get('autohide'), 0)
+        self._autohide_combo.set_active(max(0, min(2, ah)))
+
+        dark   = s.get('dark')
+        locked = s.get('locked')
+        self._dark_switch.set_active(dark == 'true' if dark else False)
+        self._lock_switch.set_active(locked == 'true' if locked else False)
+
+    def _fill_active(self, plugins: list):
+        self._active_store.clear()
+        for p in plugins:
+            pb = _load_icon(p['icon'], ICON_SIZE)
+            self._active_store.append([pb, p['name'], p['module'], p['id']])
+
+    def _fill_available(self, plugins: list):
+        self._avail_store.clear()
+        for p in plugins:
+            pb = _load_icon(p['icon'], ICON_SIZE)
+            self._avail_store.append([pb, p['name'], p['module'], p.get('comment', '')])
+
+    def _filter_func(self, model, it, _data):
+        q = self._search.get_text().lower()
+        if not q:
+            return True
+        name = (model.get_value(it, 1) or '').lower()
+        return q in name
+
+    # ── Panel selector ────────────────────────────────────────────────────────
+
+    def _on_panel_changed(self, combo):
+        idx = combo.get_active()
+        if idx < 0 or idx >= len(self._panel_ids):
+            return
+        self._current_panel = f'panel-{self._panel_ids[idx]}'
+        self.parent_window.show_progress(_("Reading panel settings…"))
+        threading.Thread(target=self._reload_worker, daemon=True).start()
+
+    def _reload_worker(self):
+        pk       = self._current_panel
+        settings = _read_settings(pk)
+        active   = _read_active_plugins(pk)
+        GLib.idle_add(self._on_reload_done, settings, active)
+
+    def _on_reload_done(self, settings, active):
+        self._fill_settings(settings)
+        self._fill_active(active)
+        self.parent_window.hide_progress()
+        return False
+
+    # ── Active plugin list actions ────────────────────────────────────────────
+
+    def _on_move_up(self, _btn):
+        sel = self._active_view.get_selection()
+        model, it = sel.get_selected()
+        if not it:
+            return
+        path = model.get_path(it)
+        if path[0] > 0:
+            model.swap(model.get_iter(Gtk.TreePath(path[0] - 1)), it)
+
+    def _on_move_down(self, _btn):
+        sel = self._active_view.get_selection()
+        model, it = sel.get_selected()
+        if not it:
+            return
+        nxt = model.iter_next(it)
+        if nxt:
+            model.swap(it, nxt)
+
+    def _on_remove(self, _btn):
+        sel = self._active_view.get_selection()
+        model, it = sel.get_selected()
+        if it:
+            model.remove(it)
+
+    # ── Available plugin add ──────────────────────────────────────────────────
+
+    def _on_add(self, _btn):
+        sel = self._avail_view.get_selection()
+        model, it = sel.get_selected()
+        if not it:
+            return
+        real_it = self._avail_filter.convert_iter_to_child_iter(it)
+        pb      = self._avail_store.get_value(real_it, 0)
+        name    = self._avail_store.get_value(real_it, 1)
+        module  = self._avail_store.get_value(real_it, 2)
+        # Append with placeholder ID 0 — real ID assigned on apply
+        self._active_store.append([pb, name, module, 0])
+
+    # ── Apply ─────────────────────────────────────────────────────────────────
+
+    def _on_apply(self, _btn):
+        pk        = self._current_panel
+        edge_idx  = self._pos_combo.get_active()
+        edges     = ['top', 'bottom', 'left', 'right']
+        edge      = edges[edge_idx] if 0 <= edge_idx < 4 else 'bottom'
+        align     = self._align_combo.get_active()   # 0=left/top, 1=center, 2=right/bottom
+        length_pct = int(self._length_spin.get_value())
+
+        edge_changed   = (edge       != getattr(self, '_old_edge', None))
+        align_changed  = (align      != getattr(self, '_old_align', 1))
+        length_changed = (length_pct != getattr(self, '_orig_length', length_pct))
+        if edge_changed or align_changed or length_changed:
+            pos_str = _build_position_string(edge, align, length_pct,
+                                             int(self._size_spin.get_value()))
+        else:
+            pos_str = self._old_pos_str
+
+        size      = int(self._size_spin.get_value())
+        icon_sz   = int(self._icon_spin.get_value())
+        length    = int(self._length_spin.get_value())
+        nrows     = int(self._rows_spin.get_value())
+        autohide  = self._autohide_combo.get_active()
+        dark      = self._dark_switch.get_active()
+        locked    = self._lock_switch.get_active()
+
+        # Collect current active plugin list from the store
+        active_plugins = [
+            (row[2], row[3])   # (module, old_id)
+            for row in self._active_store
+        ]
+
+        self.apply_btn.set_sensitive(False)
+        self.parent_window.show_progress(_("Applying panel settings…"))
+
+        def worker():
+            # Kill the running panel BEFORE writing xfconf so it cannot save
+            # its in-memory state (old values) on top of our changes.
+            try:
+                subprocess.run(['xfce4-panel', '--quit'], capture_output=True, timeout=5)
+                time.sleep(0.3)
+            except Exception:
+                pass
+
+            ok = True
+            ok &= _set(f'/panels/{pk}/position',          'string', pos_str)
+            ok &= _set(f'/panels/{pk}/size',               'uint',   str(size))
+            ok &= _set(f'/panels/{pk}/icon-size',          'uint',   str(icon_sz))
+            ok &= _set(f'/panels/{pk}/length', 'double', str(float(length)))
+            orig_len = getattr(self, '_orig_length', length)
+            orig_la  = getattr(self, '_orig_length_adjust', None)
+            if length != orig_len:
+                ok &= _set(f'/panels/{pk}/length-adjust', 'bool', 'true' if length >= 100 else 'false')
+            elif orig_la is not None:
+                ok &= _set(f'/panels/{pk}/length-adjust', 'bool', orig_la)
+            ok &= _set(f'/panels/{pk}/nrows',              'uint',   str(nrows))
+            ok &= _set(f'/panels/{pk}/autohide-behavior',  'uint',   str(autohide))
+            ok &= _set('/panels/dark-mode',                'bool',   'true' if dark else 'false')
+            ok &= _set(f'/panels/{pk}/position-locked',    'bool',   'true' if locked else 'false')
+            # Reserve screen space so windows never maximize under the panel.
+            ok &= _set(f'/panels/{pk}/enable-struts',      'bool',   'true')
+
+            # Reconcile plugin list
+            old_ids = _get_array(f'/panels/{pk}/plugin-ids')
+            old_modules = {_get(f'/plugins/plugin-{pid}'): pid for pid in old_ids}
+
+            # Compute next_id across ALL panels to avoid overwriting plugins from other panels
+            all_plugin_ids = []
+            for other_panel_id in _panel_ids():
+                all_plugin_ids.extend(_get_array(f'/panels/panel-{other_panel_id}/plugin-ids'))
+            next_id = (max(all_plugin_ids) + 1) if all_plugin_ids else 1
+
+            new_ids = []
+
+            for module, old_id in active_plugins:
+                if old_id != 0 and _get(f'/plugins/plugin-{old_id}') == module:
+                    new_ids.append(old_id)
+                elif module in old_modules:
+                    new_ids.append(old_modules[module])
+                else:
+                    # New plugin — assign next available ID
+                    _set(f'/plugins/plugin-{next_id}', 'string', module)
+                    new_ids.append(next_id)
+                    next_id += 1
+
+            # Remove plugins that were deleted
+            for pid in old_ids:
+                if pid not in new_ids:
+                    _remove(f'/plugins/plugin-{pid}')
+
+            _set_array(f'/panels/{pk}/plugin-ids', 'int', new_ids)
+
+            # Start fresh panel — reads the new xfconf values we just wrote
+            try:
+                subprocess.Popen(['xfce4-panel'])
+            except Exception as e:
+                logger.warning(f"Panel start failed: {e}")
+
+            new_la = orig_la if length == orig_len else ('true' if length >= 100 else 'false')
+            GLib.idle_add(self._on_apply_done, ok, pos_str, edge, length, new_la)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    # ── Add / Delete panel ────────────────────────────────────────────────────
+
+    def _on_new_panel(self, _btn):
+        self.apply_btn.set_sensitive(False)
+        self.parent_window.show_progress(_("Adding panel…"))
+
+        def worker():
+            new_id = (max(self._panel_ids) + 1) if self._panel_ids else 2
+            new_ids = sorted(self._panel_ids + [new_id])
+            _set_array('/panels', 'int', new_ids)
+            pk = f'panel-{new_id}'
+            _set(f'/panels/{pk}/position',          'string', _build_position_string('top', 1, 100, 30))
+            _set(f'/panels/{pk}/size',               'uint',   '30')
+            _set(f'/panels/{pk}/icon-size',          'uint',   '22')
+            _set(f'/panels/{pk}/length',             'double', '100.0')
+            _set(f'/panels/{pk}/length-adjust',      'bool',   'true')
+            _set(f'/panels/{pk}/nrows',              'uint',   '1')
+            _set(f'/panels/{pk}/autohide-behavior',  'uint',   '0')
+            _set(f'/panels/{pk}/position-locked',    'bool',   'false')
+            _set(f'/panels/{pk}/enable-struts',      'bool',   'true')
+            subprocess.run(['xfce4-panel', '--quit'], capture_output=True, timeout=5)
+            time.sleep(0.3)
+            subprocess.Popen(['xfce4-panel'])
+            GLib.idle_add(self._on_new_panel_done, new_id, new_ids)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_new_panel_done(self, new_id: int, new_ids: list):
+        self._panel_ids = new_ids
+        self._panel_combo.handler_block_by_func(self._on_panel_changed)
+        self._panel_combo.append_text(f"Panel {new_id}")
+        self._panel_combo.set_active(len(new_ids) - 1)
+        self._panel_combo.handler_unblock_by_func(self._on_panel_changed)
+        self._current_panel = f'panel-{new_id}'
+        self._del_panel_btn.set_sensitive(True)
+        # Read new panel settings synchronously — avoids a race where an async
+        # reload would clear plugins the user already added to the active list.
+        pk       = self._current_panel
+        settings = _read_settings(pk)
+        active   = _read_active_plugins(pk)
+        self._fill_settings(settings)
+        self._fill_active(active)
+        self.apply_btn.set_sensitive(True)
+        self.parent_window.hide_progress()
+        return False
+
+    def _on_delete_panel(self, _btn):
+        if len(self._panel_ids) <= 1:
+            return
+        pk = self._current_panel
+        dialog = Gtk.MessageDialog(
+            transient_for=self.parent_window, modal=True,
+            message_type=Gtk.MessageType.WARNING,
+            buttons=Gtk.ButtonsType.YES_NO,
+            text=_("Delete {pk}?").format(pk=pk)
+        )
+        dialog.format_secondary_text(_("This will remove the panel and all its plugins."))
+        response = dialog.run()
+        dialog.destroy()
+        if response != Gtk.ResponseType.YES:
+            return
+
+        panel_id = int(pk.split('-')[1])
+        self.apply_btn.set_sensitive(False)
+        self.parent_window.show_progress(_("Deleting panel…"))
+
+        def worker():
+            new_ids          = [i for i in self._panel_ids if i != panel_id]
+            orphan_plugin_ids = _get_array(f'/panels/{pk}/plugin-ids')
+            # Kill first: subprocess.run waits for exit, so any state-save by
+            # xfce4-panel completes before we overwrite xfconf below.
+            subprocess.run(['xfce4-panel', '--quit'], capture_output=True, timeout=5)
+            time.sleep(0.3)
+            _set_array('/panels', 'int', new_ids)
+            _remove(f'/panels/{pk}')
+            # Only remove plugin xfconf entries not referenced by any surviving panel
+            surviving_ids: set = set()
+            for other_panel_id in new_ids:
+                surviving_ids.update(_get_array(f'/panels/panel-{other_panel_id}/plugin-ids'))
+            for pid in orphan_plugin_ids:
+                if pid not in surviving_ids:
+                    _remove(f'/plugins/plugin-{pid}')
+            subprocess.Popen(['xfce4-panel'])
+            GLib.idle_add(self._on_delete_panel_done, panel_id, new_ids)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_delete_panel_done(self, panel_id: int, new_ids: list):
+        self._panel_ids = new_ids
+        self._panel_combo.handler_block_by_func(self._on_panel_changed)
+        model = self._panel_combo.get_model()
+        for i in range(len(model) - 1, -1, -1):
+            self._panel_combo.remove(i)
+        for i in new_ids:
+            self._panel_combo.append_text(f"Panel {i}")
+        self._panel_combo.set_active(0)
+        self._panel_combo.handler_unblock_by_func(self._on_panel_changed)
+        self._current_panel = f'panel-{new_ids[0]}'
+        self._del_panel_btn.set_sensitive(len(new_ids) > 1)
+        self.apply_btn.set_sensitive(True)
+        self.parent_window.hide_progress()
+        threading.Thread(target=self._reload_worker, daemon=True).start()
+        return False
+
+    def _on_apply_done(self, ok: bool, new_pos_str: str, new_edge: str, new_length: int, new_la: str):
+        self.parent_window.hide_progress()
+        self.apply_btn.set_sensitive(True)
+        if ok:
+            self._old_pos_str        = new_pos_str
+            self._old_edge           = new_edge
+            self._old_align          = self._align_combo.get_active()
+            self._orig_length        = new_length
+            self._orig_length_adjust = new_la
+        return False

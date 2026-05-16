@@ -1,0 +1,44 @@
+/* Base Theme for Soplos Theme Manager - GTK3 */
+/* This file contains shared structural styles */
+
+.soplos-window {
+    background-color: @theme_bg_color;
+}
+
+.soplos-content {
+    margin: 10px;
+}
+
+.status-bar {
+    border-top: 1px solid @borders;
+    padding: 8px 12px;
+}
+
+/* Visual Gallery Spacing */
+.flowbox-container {
+    padding: 20px;
+}
+
+/* Scroll Smoothing */
+scrolledwindow {
+    transition: all 0.3s ease;
+}
+
+/* Status Labels */
+.status-label {
+    font-size: 14px;
+}
+
+/* HeaderBar button reset — prevents global button{} rule from
+   affecting CSD window controls (close/minimize/maximize) on GNOME */
+headerbar button {
+    border: none;
+    padding: 4px;
+    background-color: transparent;
+    font-weight: normal;
+    min-height: 0;
+}
+
+headerbar button:hover {
+    background-color: alpha(@theme_fg_color, 0.1);
+}

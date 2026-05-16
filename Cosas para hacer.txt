@@ -1,0 +1,15 @@
+[X] Empieza en la pestaña docklike y no en la de themes
+[X] No detecta los themes que tengo en el sistema, no sé de donde analiza los themes pero solo muestra los 6 génericos
+[X] En la pestaña avatar no detecta el avatar que tengo puesto
+[X] Durante la apertura del programa hace un freeze imagino que será porque está escaneando los wallpapers. Imagino que deberíamos cachearlos
+[X] Los detalles de la interfaz carecen de estilo al resto de programas, adjunto capturas cuando me lo pidas
+[X] Hay que rellenar debian control, copyright, man, wrapper
+[X] Hay que rellenar setup.py
+[X] Hay que actualizar readme, metainfo en sus 8 idiomas y changelog para mantener el estandar del resto de mis programas.
+[ ] Cuando esté visible haré capturas de pantalla para agregarlas a assets screenshots
+[ ] .themes-backup los .conf estan en español
+[ ] No hay atajos de teclado como en el resto de programas
+[X] Al crear el theme no minimiza todo para crear la captura como hace legacy
+[ ] Al rellenar los cambios del usuario como el mail o teléfono, si abro mugshot no se ven reflejados.
+
+Cuando vaya viendo errores los iré comentando en este documento.

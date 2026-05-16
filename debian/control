@@ -1,0 +1,36 @@
+Source: soplos-theme-manager
+Section: admin
+Priority: optional
+Maintainer: Sergi Perich <info@soploslinux.com>
+Build-Depends: debhelper-compat (= 13),
+               dh-python,
+               python3-all,
+               python3-setuptools
+
+Package: soplos-theme-manager
+Version: 2.0.0
+Architecture: all
+Depends: ${python3:Depends},
+         ${misc:Depends},
+         python3-gi (>= 3.0.0),
+         gir1.2-gtk-3.0,
+         xfce4-panel,
+         xfconf,
+         xfwm4,
+         xfdesktop4,
+         scrot,
+         imagemagick,
+         wmctrl,
+         libnotify-bin,
+         tar,
+         polkit | policykit-1-gnome | policykit-1
+Description: Soplos Theme Manager
+ A graphical tool to manage desktop themes in Soplos Linux Tyron (XFCE).
+ Features include:
+  * Apply, create, export and import complete XFCE desktop themes
+  * Built-in wallpaper browser and selector
+  * Avatar manager replacing Mugshot
+  * Panel and Dock configuration (Docklike integration)
+  * Theme export/import as .sth bundles
+  * Screenshot-based theme previews
+  * Modern dark interface with multi-language support (8 languages)

@@ -1,0 +1,30 @@
+#!/bin/bash
+export WMCLASS="org.soplos.thememanager"
+export GDK_STARTUP_NOTIFICATION_ID="${STARTUP_ID:-0}"
+export GTK_CSD=0
+export NO_AT_BRIDGE=1
+
+cd /usr/share/soplos-theme-manager
+
+exec python3 -c "
+import sys
+import os
+sys.path.insert(0, '/usr/share/soplos-theme-manager')
+os.environ['GDK_STARTUP_ID'] = '${GDK_STARTUP_NOTIFICATION_ID}'
+os.environ['WMCLASS'] = 'org.soplos.thememanager'
+os.environ['GTK_CSD'] = '0'
+os.environ['NO_AT_BRIDGE'] = '1'
+
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk, GLib, Gdk
+
+GLib.set_prgname('org.soplos.thememanager')
+GLib.set_application_name('soplos-theme-manager')
+Gtk.Window.set_default_icon_name('org.soplos.thememanager')
+if hasattr(Gdk, 'set_program_class'):
+    Gdk.set_program_class('org.soplos.thememanager')
+
+from core.application import run_application
+sys.exit(run_application())
+"
