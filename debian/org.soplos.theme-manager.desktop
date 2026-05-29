@@ -1,0 +1,21 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Soplos Theme Manager
+Name[es]=Gestor de temas Soplos
+Name[fr]=Gestionnaire de thèmes Soplos
+Name[pt]=Gestor de temas Soplos
+Name[de]=Soplos Themen-Manager
+Name[it]=Gestore temi Soplos
+Name[ru]=Менеджер тем Soplos
+Name[ro]=Manager teme Soplos
+Comment=Manage desktop themes, wallpapers and panel for Soplos Linux Tyron
+Comment[es]=Gestiona temas de escritorio, fondos y panel para Soplos Linux Tyron
+Icon=org.soplos.thememanager
+Exec=soplos-theme-manager
+Terminal=false
+Categories=Settings;DesktopSettings;X-XFCE;
+OnlyShowIn=XFCE;
+StartupWMClass=org.soplos.thememanager
+StartupNotify=true
+Keywords=theme;wallpaper;panel;dock;xfce;soplos;

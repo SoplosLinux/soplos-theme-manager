@@ -48,6 +48,28 @@ class ThemeManagerApp(Gtk.Application):
                 logger.info(f"Initialized themes directory from defaults")
             else:
                 USER_THEMES_DIR.mkdir(parents=True, exist_ok=True)
+        else:
+            self._migrate_conf_names(USER_THEMES_DIR)
+
+    def _migrate_conf_names(self, themes_dir: Path):
+        """Rename Spanish conf filenames to English for users upgrading from v2.0.0."""
+        renames = {
+            'tema.conf':   'theme.conf',
+            'fondo.conf':  'wallpaper.conf',
+            'atajos.conf': 'shortcuts.conf',
+        }
+        for theme_dir in themes_dir.iterdir():
+            if not theme_dir.is_dir():
+                continue
+            for old, new in renames.items():
+                old_path = theme_dir / old
+                new_path = theme_dir / new
+                if old_path.exists() and not new_path.exists():
+                    old_path.rename(new_path)
+                    logger.info(f"Migrated {theme_dir.name}/{old} → {new}")
+                elif old_path.exists() and new_path.exists():
+                    old_path.unlink()
+                    logger.info(f"Removed duplicate {theme_dir.name}/{old}")
 
     def _apply_css(self):
         themes_dir = Path(__file__).parent.parent / "assets" / "themes"

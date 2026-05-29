@@ -113,10 +113,10 @@ class XfceThemeService:
 
     def _apply_xfconf(self, theme_dir: Path):
         config_files = {
-            'tema.conf': 'xsettings',
+            'theme.conf': 'xsettings',
             'xfwm.conf': 'xfwm4',
-            'fondo.conf': 'xfce4-desktop',
-            'atajos.conf': 'xfce4-keyboard-shortcuts',
+            'wallpaper.conf': 'xfce4-desktop',
+            'shortcuts.conf': 'xfce4-keyboard-shortcuts',
         }
         for filename, channel in config_files.items():
             conf_file = theme_dir / filename
@@ -313,10 +313,10 @@ class XfceThemeService:
 
     def _save_xfconf_to_conf(self, theme_dir: Path):
         channels_files = {
-            'xsettings': 'tema.conf',
+            'xsettings': 'theme.conf',
             'xfwm4': 'xfwm.conf',
-            'xfce4-desktop': 'fondo.conf',
-            'xfce4-keyboard-shortcuts': 'atajos.conf',
+            'xfce4-desktop': 'wallpaper.conf',
+            'xfce4-keyboard-shortcuts': 'shortcuts.conf',
         }
         for channel, filename in channels_files.items():
             try:

@@ -1,7 +1,7 @@
 # Soplos Theme Manager
 
 [![License: GPL-3.0+](https://img.shields.io/badge/License-GPL--3.0%2B-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Version](https://img.shields.io/badge/version-2.0.0-green.svg)]()
+[![Version](https://img.shields.io/badge/version-2.0.0--1-green.svg)]()
 
 Desktop theme manager for Soplos Linux Tyron (XFCE). Apply, create, export and import complete desktop themes with a single click.
 
@@ -98,6 +98,16 @@ Developed by Sergi Perich (<info@soploslinux.com>)
 - [Donate](https://www.paypal.com/paypalme/isubdes)
 
 ## 📦 Versions
+
+### v2.0.0-1 (2026-05-29)
+- Panel tab: fixed width not respected, alignment combo added, struts for top/bottom panels.
+- Panel tab: fixed delete-all-panels bug (`--force-array`), plugin ID collision on new panel, windows maximizing under top panel.
+- Panel tab: fixed async reload clearing user-added plugins, new panel default position calculated from screen resolution.
+- Desktop file was empty — app now appears correctly in the XFCE menu.
+- Ctrl+Tab / Ctrl+Shift+Tab keyboard shortcuts for tab switching.
+- Launcher wrapper simplified to standard Soplos pattern.
+- Theme conf filenames renamed from Spanish to English (`theme.conf`, `wallpaper.conf`, `shortcuts.conf`) with automatic migration on startup.
+- Metainfo screenshots corrected to Tyron repo URLs. Added Panel and Dock screenshots.
 
 ### v2.0.0 (2026-04-24)
 - Complete modular rewrite: `core/`, `services/`, `ui/tabs/`, `config/`, `utils/` architecture.

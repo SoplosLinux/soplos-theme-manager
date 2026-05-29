@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-1] - 2026-05-29
+
+### 🐛 Fixed
+- **Panel tab — width not respected**: `length-adjust` was not written back when length was unchanged, causing XFCE to default to 100%. Fixed by preserving the original `length-adjust` value and recalculating when length changes.
+- **Panel tab — locale decimal separator**: `xfconf-query` returns `52,083333` on Spanish locale; `float()` raised `ValueError`. Fixed by replacing `,` with `.` before parsing (`si()` helper).
+- **Panel tab — plugin ID collision on new panel**: new panel's plugin IDs started from 1, overwriting main panel plugins. Fixed by computing `next_id` across all panels.
+- **Panel tab — wrong p values**: position string p values were incorrect (invented). Corrected from confirmed Soplos theme XMLs: `p=6`=top, `p=8`=bottom, `p=10`=left, `p=1`=right.
+- **Panel tab — alignment ignored for snapped panels**: switched to `p=0` floating with center coordinates for partial-width panels so XFCE respects position on all hardware. Full-width panels use snapped p values so the WM receives `_NET_WM_STRUT` hints.
+- **Panel tab — windows maximizing under top panel**: `enable-struts` property was not being set. Now written as `true` on every apply and new panel creation.
+- **Panel tab — async reload cleared user-added plugins**: `_reload_worker` called after new panel creation wiped plugins the user had just added. Fixed by reading settings synchronously in `_on_new_panel_done`.
+- **Panel tab — delete panel removed all panels**: `_set_array` wrote single-element arrays as xfconf scalars; xfce4-panel could not read `/panels` as a list. Fixed by adding `--force-array` flag to all `_set_array` calls.
+- **Panel tab — length change did not trigger position recalculation**: switching from 100% to partial width (or vice versa) did not update the position string. Fixed by including `length_changed` in the recalculation condition.
+- **Desktop file empty**: `debian/org.soplos.thememanager.desktop` was 0 bytes — app did not appear in the XFCE menu and GLib emitted a warning on startup. Rewritten with full `[Desktop Entry]` content.
+- **Keyboard shortcuts Ctrl+Tab / Ctrl+Shift+Tab not working**: GTK intercepts these inside child widgets before `AccelGroup` fires. Fixed by connecting `key-press-event` on the main window.
+- **Wrapper script oversized**: launcher was an inline Python script duplicating logic already in `main.py`. Simplified to the standard Soplos wrapper pattern (`exec python3 main.py`). `Gdk.set_program_class` moved to `main.py`.
+
+### 🔄 Changed
+- **Theme conf filenames**: renamed from Spanish (`tema.conf`, `fondo.conf`, `atajos.conf`) to English (`theme.conf`, `wallpaper.conf`, `shortcuts.conf`). Automatic migration runs on startup to rename existing user theme files and remove duplicates.
+- **Metainfo screenshots**: corrected URLs from `soplos-theme-manager/master/assets/` to `tyron/main/media/soplos-theme-manager/screenshots/` (standard Soplos pattern). Added screenshot4 (Panel) and screenshot5 (Dock).
+- **Panel tab — alignment combo**: added Left/Center/Right alignment control. Alignment is derived from coordinates on load and applied when building the position string.
+- **Panel tab — new panel default position**: replaced hardcoded `p=2` with `_build_position_string('top', 1, 100, 30)` so coordinates are calculated from actual screen resolution.
+
 ## [2.0.0] - 2026-04-24
 
 ### 🎉 Added

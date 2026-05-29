@@ -102,7 +102,7 @@
 
   <icon type="stock">org.soplos.thememanager</icon>
   <icon type="remote">
-    <url>https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/main/assets/icons/org.soplos.thememanager.png</url>
+    <url>https://raw.githubusercontent.com/SoplosLinux/tyron/main/media/soplos-theme-manager/icons/org.soplos.thememanager.png</url>
   </icon>
 
   <screenshots>
@@ -115,7 +115,7 @@
       <caption xml:lang="it">Galleria dei temi con anteprime</caption>
       <caption xml:lang="ru">Галерея тем с превью</caption>
       <caption xml:lang="ro">Galerie de teme cu previzualizări</caption>
-      <image>https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/main/assets/screenshots/screenshot1.png</image>
+      <image>https://raw.githubusercontent.com/SoplosLinux/tyron/main/media/soplos-theme-manager/screenshots/screenshot1.png</image>
     </screenshot>
     <screenshot>
       <caption>Wallpaper browser</caption>
@@ -126,7 +126,7 @@
       <caption xml:lang="it">Browser degli sfondi</caption>
       <caption xml:lang="ru">Браузер обоев</caption>
       <caption xml:lang="ro">Browser de fundaluri</caption>
-      <image>https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/main/assets/screenshots/screenshot2.png</image>
+      <image>https://raw.githubusercontent.com/SoplosLinux/tyron/main/media/soplos-theme-manager/screenshots/screenshot2.png</image>
     </screenshot>
     <screenshot>
       <caption>Avatar and user data manager</caption>
@@ -137,7 +137,29 @@
       <caption xml:lang="it">Gestore avatar e dati utente</caption>
       <caption xml:lang="ru">Менеджер аватара и данных пользователя</caption>
       <caption xml:lang="ro">Manager avatar și date utilizator</caption>
-      <image>https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/main/assets/screenshots/screenshot3.png</image>
+      <image>https://raw.githubusercontent.com/SoplosLinux/tyron/main/media/soplos-theme-manager/screenshots/screenshot3.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Panel configuration and plugin manager</caption>
+      <caption xml:lang="es">Configuración del panel y gestor de plugins</caption>
+      <caption xml:lang="fr">Configuration du panneau et gestionnaire de plugins</caption>
+      <caption xml:lang="pt">Configuração do painel e gestor de plugins</caption>
+      <caption xml:lang="de">Panel-Konfiguration und Plugin-Manager</caption>
+      <caption xml:lang="it">Configurazione pannello e gestore plugin</caption>
+      <caption xml:lang="ru">Настройка панели и менеджер плагинов</caption>
+      <caption xml:lang="ro">Configurare panou și manager de plugin-uri</caption>
+      <image>https://raw.githubusercontent.com/SoplosLinux/tyron/main/media/soplos-theme-manager/screenshots/screenshot4.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Dock pinned applications manager</caption>
+      <caption xml:lang="es">Gestor de aplicaciones ancladas en el dock</caption>
+      <caption xml:lang="fr">Gestionnaire d'applications épinglées dans le dock</caption>
+      <caption xml:lang="pt">Gestor de aplicações fixadas no dock</caption>
+      <caption xml:lang="de">Manager für angeheftete Dock-Anwendungen</caption>
+      <caption xml:lang="it">Gestore applicazioni bloccate nel dock</caption>
+      <caption xml:lang="ru">Менеджер закреплённых приложений дока</caption>
+      <caption xml:lang="ro">Manager aplicații fixate în dock</caption>
+      <image>https://raw.githubusercontent.com/SoplosLinux/tyron/main/media/soplos-theme-manager/screenshots/screenshot5.png</image>
     </screenshot>
   </screenshots>
 
@@ -165,6 +187,18 @@
   </provides>
 
   <releases>
+    <release version="2.0.0-1" date="2026-05-29">
+      <description>
+        <p xml:lang="en">Bug fix release. Panel: fixed width not respected, alignment combo added, struts for top/bottom panels, delete-all-panels bug fixed (--force-array), plugin ID collision on new panel, windows maximizing under top panel, new panel position calculated from actual screen resolution. Desktop file was empty causing app to be missing from the XFCE menu. Ctrl+Tab and Ctrl+Shift+Tab shortcuts for tab switching. Launcher wrapper simplified to standard Soplos pattern. Theme conf filenames renamed from Spanish to English (theme.conf, wallpaper.conf, shortcuts.conf) with automatic migration on startup. Metainfo screenshots corrected to Tyron repo URLs; Panel and Dock screenshots added.</p>
+        <p xml:lang="es">Versión de corrección de errores. Panel: corregido el ancho no respetado, combo de alineación añadido, struts para paneles superior/inferior, error de eliminación de todos los paneles corregido (--force-array), colisión de IDs de plugins al crear un panel nuevo, ventanas que se maximizan bajo el panel superior, posición del nuevo panel calculada según la resolución real de pantalla. El archivo desktop estaba vacío, lo que impedía que la app apareciera en el menú de XFCE. Atajos Ctrl+Tab y Ctrl+Shift+Tab para cambiar de pestaña. Wrapper simplificado al patrón estándar Soplos. Nombres de archivos .conf renombrados del español al inglés (theme.conf, wallpaper.conf, shortcuts.conf) con migración automática al iniciar. Screenshots del metainfo corregidas a las URLs del repo Tyron; añadidas capturas de Panel y Dock.</p>
+        <p xml:lang="fr">Version de correction de bugs. Panneau : correction de la largeur non respectée, combo d'alignement ajouté, struts pour les panneaux haut/bas, bug de suppression de tous les panneaux corrigé (--force-array), collision d'ID de plugins lors de la création d'un nouveau panneau, fenêtres se maximisant sous le panneau supérieur, position du nouveau panneau calculée selon la résolution réelle de l'écran. Le fichier desktop était vide, empêchant l'app d'apparaître dans le menu XFCE. Raccourcis Ctrl+Tab et Ctrl+Shift+Tab pour changer d'onglet. Wrapper simplifié selon le modèle standard Soplos. Noms des fichiers .conf renommés de l'espagnol vers l'anglais (theme.conf, wallpaper.conf, shortcuts.conf) avec migration automatique au démarrage. Screenshots du metainfo corrigées vers les URLs du dépôt Tyron ; captures Panneau et Dock ajoutées.</p>
+        <p xml:lang="pt">Versão de correção de erros. Painel: corrigida a largura não respeitada, combo de alinhamento adicionado, struts para painéis superior/inferior, bug de exclusão de todos os painéis corrigido (--force-array), colisão de IDs de plugins ao criar novo painel, janelas maximizando sob o painel superior, posição do novo painel calculada pela resolução real do ecrã. O ficheiro desktop estava vazio, impedindo a app de aparecer no menu do XFCE. Atalhos Ctrl+Tab e Ctrl+Shift+Tab para mudar de separador. Wrapper simplificado para o padrão Soplos. Nomes dos ficheiros .conf renomeados do espanhol para inglês (theme.conf, wallpaper.conf, shortcuts.conf) com migração automática no arranque. Screenshots do metainfo corrigidas para URLs do repositório Tyron; capturas de Painel e Dock adicionadas.</p>
+        <p xml:lang="de">Fehlerbehebungs-Release. Panel: Breite wird nun korrekt übernommen, Ausrichtungs-Combo hinzugefügt, Struts für obere/untere Panels, Bug beim Löschen aller Panels behoben (--force-array), Plugin-ID-Kollision beim Erstellen neuer Panels, Fenster maximieren nicht mehr unter das obere Panel, Position des neuen Panels aus tatsächlicher Bildschirmauflösung berechnet. Desktop-Datei war leer und verhinderte das Erscheinen der App im XFCE-Menü. Ctrl+Tab und Ctrl+Shift+Tab Tastenkürzel für Tab-Wechsel. Wrapper auf Standard-Soplos-Muster vereinfacht. Conf-Dateinamen von Spanisch auf Englisch umbenannt (theme.conf, wallpaper.conf, shortcuts.conf) mit automatischer Migration beim Start. Metainfo-Screenshots auf Tyron-Repo-URLs korrigiert; Panel- und Dock-Screenshots hinzugefügt.</p>
+        <p xml:lang="it">Versione di correzione bug. Pannello: larghezza non rispettata corretta, combo allineamento aggiunto, struts per pannelli superiore/inferiore, bug eliminazione tutti i pannelli corretto (--force-array), collisione ID plugin alla creazione di nuovo pannello, finestre che si massimizzano sotto il pannello superiore, posizione del nuovo pannello calcolata dalla risoluzione reale dello schermo. Il file desktop era vuoto, impedendo all'app di apparire nel menu XFCE. Scorciatoie Ctrl+Tab e Ctrl+Shift+Tab per cambiare scheda. Wrapper semplificato al modello standard Soplos. Nomi file .conf rinominati dallo spagnolo all'inglese (theme.conf, wallpaper.conf, shortcuts.conf) con migrazione automatica all'avvio. Screenshot metainfo corretti agli URL del repo Tyron; screenshot Pannello e Dock aggiunti.</p>
+        <p xml:lang="ru">Выпуск с исправлением ошибок. Панель: исправлено игнорирование ширины, добавлен комбо выравнивания, struts для верхней/нижней панели, исправлена ошибка удаления всех панелей (--force-array), коллизия ID плагинов при создании новой панели, окна больше не максимизируются под верхнюю панель, позиция новой панели рассчитывается из реального разрешения экрана. Файл desktop был пустым, из-за чего приложение не отображалось в меню XFCE. Горячие клавиши Ctrl+Tab и Ctrl+Shift+Tab для переключения вкладок. Wrapper упрощён до стандартного шаблона Soplos. Имена файлов .conf переименованы с испанского на английский (theme.conf, wallpaper.conf, shortcuts.conf) с автоматической миграцией при запуске. Скриншоты metainfo исправлены на URL репозитория Tyron; добавлены скриншоты Panel и Dock.</p>
+        <p xml:lang="ro">Versiune de corecție a erorilor. Panou: lățimea ignorată corectată, combo aliniere adăugat, struts pentru panouri sus/jos, bug ștergere toate panourile corectat (--force-array), coliziune ID plugin la crearea panoului nou, ferestre care se maximizau sub panoul superior, poziția panoului nou calculată din rezoluția reală a ecranului. Fișierul desktop era gol, împiedicând aplicația să apară în meniul XFCE. Scurtături Ctrl+Tab și Ctrl+Shift+Tab pentru schimbarea filelor. Wrapper simplificat la modelul standard Soplos. Numele fișierelor .conf redenumite din spaniolă în engleză (theme.conf, wallpaper.conf, shortcuts.conf) cu migrare automată la pornire. Capturile metainfo corectate la URL-urile repo-ului Tyron; capturi Panel și Dock adăugate.</p>
+      </description>
+    </release>
     <release version="2.0.0" date="2026-04-24">
       <description>
         <p xml:lang="en">Version 2.0.0 — Complete rewrite with modular architecture. New tabbed interface: Themes, Wallpapers, User, Panel, Dock. Panel tab: full XFCE panel settings (position, size, icon size, rows, auto-hide, dark mode) and plugin management (add, remove, reorder). Dock tab: dedicated Docklike pinned apps manager. User tab: avatar manager replacing Mugshot with crop dialog, editable user data, and group membership management via checkboxes (polkit). Wallpaper browser with near-instant loading (thumbnail decoding in background thread). Theme export/import as .sth bundles. Screenshot-based previews with desktop minimize. Footer progress bar following Soplos standard.</p>

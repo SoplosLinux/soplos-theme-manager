@@ -3,7 +3,7 @@ import threading
 from pathlib import Path
 
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, GLib, GdkPixbuf, Pango
+from gi.repository import Gtk, Gdk, GLib, GdkPixbuf, Pango
 
 from core.i18n_manager import _
 from config.settings import Config
@@ -172,6 +172,24 @@ class ThemeManagerWindow(Gtk.ApplicationWindow):
 
         add_shortcut('<Control>q', self.application.quit)
         add_shortcut('F1', self._show_about)
+
+        # Ctrl+Tab / Ctrl+Shift+Tab — tab switching via key-press-event because
+        # GTK intercepts these inside child widgets before AccelGroup fires.
+        self.connect('key-press-event', self._on_key_press)
+
+    def _on_key_press(self, _widget, event):
+        ctrl = event.state & Gdk.ModifierType.CONTROL_MASK
+        if not ctrl:
+            return False
+        n = self.notebook.get_n_pages()
+        cur = self.notebook.get_current_page()
+        if event.keyval == Gdk.KEY_Tab:
+            self.notebook.set_current_page((cur + 1) % n)
+            return True
+        if event.keyval == Gdk.KEY_ISO_Left_Tab:
+            self.notebook.set_current_page((cur - 1) % n)
+            return True
+        return False
 
     def _ensure_first_tab(self):
         self.notebook.set_current_page(0)

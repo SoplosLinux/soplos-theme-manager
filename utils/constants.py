@@ -45,8 +45,8 @@ PREVIEW_HEIGHT = 90
 
 # Required theme file structure
 THEME_REQUIRED_FILES = [
-    "tema.conf", "panel.conf", "xfwm.conf",
-    "fondo.conf", "atajos.conf",
+    "theme.conf", "panel.conf", "xfwm.conf",
+    "wallpaper.conf", "shortcuts.conf",
     "xfce4-panel.xml", "xfce4-desktop.xml"
 ]
 THEME_REQUIRED_DIRS = ["panel", "view", "wallpaper"]
@@ -66,9 +66,9 @@ THEME_NAME_ALLOWED_EXTRA = '-_ '
 
 # xfconf channel mapping per config file
 XFCONF_CHANNELS = {
-    'tema.conf': 'xsettings',
+    'theme.conf': 'xsettings',
     'panel.conf': 'xfce4-panel',
     'xfwm.conf': 'xfwm4',
-    'fondo.conf': 'xfce4-desktop',
-    'atajos.conf': 'xfce4-keyboard-shortcuts',
+    'wallpaper.conf': 'xfce4-desktop',
+    'shortcuts.conf': 'xfce4-keyboard-shortcuts',
 }

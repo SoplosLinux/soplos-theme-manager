@@ -4,7 +4,7 @@ import sys
 
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, GLib
+from gi.repository import Gtk, GLib, Gdk
 
 from core import run_application
 from utils.constants import APPLICATION_ID
@@ -18,6 +18,8 @@ def main():
 
     GLib.set_prgname(APPLICATION_ID)
     GLib.set_application_name("Soplos Theme Manager")
+    if hasattr(Gdk, 'set_program_class'):
+        Gdk.set_program_class(APPLICATION_ID)
 
     try:
         return run_application()
