@@ -1,0 +1,17 @@
+# Ignorar contenido de base-themes (archivos .sth generados/paquetes de tema)
+assets/base-themes/
+
+# Python/IDE cosas comunes
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+*.pyc
+*.pyo
+*.pyd
+*.swp
+.DS_Store
+
+# Node / build
+node_modules/
+dist/
