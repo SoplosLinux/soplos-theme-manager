@@ -1,7 +1,7 @@
 # Soplos Theme Manager
 
 [![License: GPL-3.0+](https://img.shields.io/badge/License-GPL--3.0%2B-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Version](https://img.shields.io/badge/version-2.0.0--1-green.svg)]()
+[![Version](https://img.shields.io/badge/version-2.0.1-green.svg)]()
 
 Desktop theme manager for Soplos Linux Tyron (XFCE). Apply, create, export and import complete desktop themes with a single click.
 
@@ -14,9 +14,9 @@ Soplos Theme Manager is the official theme management tool for Soplos Linux Tyro
 - 🎨 **Theme Gallery**: Apply, create, export and import full XFCE desktop themes.
 - 🖼️ **Wallpaper Browser**: Browse and apply wallpapers from system directories. Near-instant loading — thumbnails decoded in background thread.
 - 👤 **User Manager**: Replace Mugshot — set user avatar with crop dialog, edit user data, and manage group membership with checkboxes (applied via polkit).
-- 🔧 **Panel**: Full XFCE panel configuration — position, size, icon size, length, rows, auto-hide, dark mode, lock. Add, remove and reorder plugins.
+- 🔧 **Panel**: Full XFCE panel configuration — position, size, icon size, length, rows, auto-hide, dark mode, lock. Add, remove and reorder plugins. Settings button opens each plugin's own configuration dialog via gdb process injection into the plugin wrapper (works for any plugin generically; requires gdb).
 - ⚓ **Dock**: Manage Docklike Taskbar pinned apps — add, remove and reorder from an available apps browser.
-- 📦 **Theme Bundles**: Export and import themes as `.sth` files (tar.gz + manifest).
+- 📦 **Theme Bundles**: Export and import portable `.sth` files — each bundle contains the actual GTK theme, icon theme, cursor theme and wallpaper, making themes fully self-contained and shareable across machines.
 - 📸 **Screenshot Previews**: Automatic screenshot capture with desktop minimize for theme cards.
 - 📊 **Footer Progress Bar**: Soplos-standard progress indicator for all operations.
 - 🌍 **Multi-language**: 8 languages (es, en, fr, pt, de, it, ru, ro).
@@ -98,6 +98,38 @@ Developed by Sergi Perich (<info@soploslinux.com>)
 - [Donate](https://www.paypal.com/paypalme/isubdes)
 
 ## 📦 Versions
+
+### v2.0.1 (2026-06-10)
+- Theme bundle format v2: bundles now contain the actual GTK theme, icon theme, cursor theme and wallpaper directories. Fully portable across machines. Format changed from tar.gz to zip.
+- Apply theme: now only sets visual xfconf properties (GTK theme, icons, cursor, WM decorations, wallpaper). No longer touches keyboard shortcuts, desktop icon settings, desktop menu visibility, panel directory or any behavioral configuration.
+- Install scope dialog: when applying a theme, user chooses between installing assets for the current user (`~/.themes`, `~/.icons`) or globally for all users (`/usr/share/themes`, `/usr/share/icons`) via pkexec.
+- Export: file chooser dialog lets the user pick the destination path for the `.sth` file.
+- Fixed: shortcuts overwritten on theme apply. Fixed: desktop icons and right-click menu activated on theme apply. Fixed: docklike pinned apps replaced on theme apply. Fixed: wallpaper paths hardcoded from source machine.
+- Fixed: xfconfd served cached panel config after apply — xfconfd is now killed after panel quit so it re-reads XML from disk.
+- Fixed: orphan panel plugin files from old panels bled into saved themes and applied themes — save and apply now filter by IDs present in `xfce4-panel.xml`, and orphan files are removed after apply.
+- Fixed: Firefox and GTK4 apps ignored the saved dark mode setting — `prefer_dark` is now saved in `theme.conf` and restored to `~/.config/gtk-3.0/settings.ini` and `~/.config/gtk-4.0/settings.ini` on apply.
+- Fixed: Docklike service matched wrong plugin ID via glob — now parses `xfce4-panel.xml` to find the active docklike plugin ID.
+- Fixed: Docklike panel restart used the removed `--restart` flag (XFCE 4.20+) — replaced with quit + Popen.
+- UI: Themes gallery wrapped in a dark rounded box (`soplos-content`), matching Plymouth Manager style.
+- UI: Theme card selection now shows a thin 1px orange border; fixed GTK FlowBoxChild painting the container orange on selection.
+- Fixed: panel structure, dark mode and plugin config never changed on theme apply — `_read_docklike_apps` was called with two arguments but only accepted one, causing a silent `TypeError` that aborted `_apply_panel_config` on every run.
+- Fixed: `prefer_dark` not saved when `~/.config/gtk-3.0/settings.ini` was absent — now inferred from GTK theme name as fallback; old themes without the key also handled correctly on apply.
+- Fixed: pkexec install script leaked temp dir in `/tmp` on tar failure — `trap 'rm -rf "$TMPEXTR"' EXIT` added for guaranteed cleanup.
+- Fixed: export broke icon themes that use symlinks between variant dirs (e.g. Tela-ubuntu-dark → Tela-ubuntu) — export now creates tars with `tar -czf -C base_dir` preserving symlinks in context.
+- Fixed: export only bundled the selected icon theme dir, not its parent themes — `_find_icon_dependencies()` reads `Inherits=` in `index.theme` recursively and bundles the full family in `icons.tar`.
+- Fixed: install global destroyed existing system assets with `rm -rf` before copying — now extracts tar to temp and moves only dirs that do not already exist at destination.
+- Fixed: install global left files owned by the user in `/usr/share/` due to `cp -rp` — tar extraction without preserve flags gives correct root ownership; `chmod -R a+rX` applied after install.
+- Bundle format bumped to v3: assets are now stored as tars (`gtk.tar`, `icons.tar`, `cursor.tar`) instead of raw directory trees.
+
+### v2.0.0-2 (2026-06-04)
+- Panel tab: move/remove/add plugins now applied live (xfconf + panel restart), no more "Save & Apply" needed for plugin changes.
+- Panel tab: new Settings button to open each plugin's own configuration dialog (under investigation for full compatibility).
+- Panel tab: fixed plugin module names (filename stem, not X-XFCE-Module value), fixed apply order (write xfconf before restart), fixed new/delete panel teardown sequence.
+- Panel tab: threading lock to serialize hot-apply operations; error dialog on apply failure; reload after successful apply.
+- Dock tab: fixed icon size when pinning an app (reloaded at correct size from stored path).
+- Docklike service: filtered hidden/no-display apps, improved icon resolution fallback, fixed broken entries on exception.
+- Theme service: xfce4-panel now launched with cwd=HOME to avoid wrong working directory.
+- core/application: theme conf migration now uses copy2+delete instead of rename (handles root-owned files).
 
 ### v2.0.0-1 (2026-05-29)
 - Panel tab: fixed width not respected, alignment combo added, struts for top/bottom panels.

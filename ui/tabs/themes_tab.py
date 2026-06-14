@@ -90,6 +90,7 @@ class ThemesTab(Gtk.Box):
     def _setup_ui(self):
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        scrolled.get_style_context().add_class('soplos-content')
         self.pack_start(scrolled, True, True, 0)
 
         self.flowbox = Gtk.FlowBox()
@@ -170,6 +171,7 @@ class ThemesTab(Gtk.Box):
             self._show_info(_("Select a theme first"))
             return
         name = self.selected_card.theme_info['name']
+
         self.parent_window.show_progress(_("Applying {name}…").format(name=name))
         def progress_cb(f):
             GLib.idle_add(self.parent_window.progress_bar.set_fraction, f)
@@ -298,6 +300,7 @@ class ThemesTab(Gtk.Box):
             Gtk.STOCK_SAVE,   Gtk.ResponseType.OK
         )
         dialog.set_current_name(f"{name}{THEME_BUNDLE_EXT}")
+        dialog.set_current_folder(str(Path.home()))
 
         filt = Gtk.FileFilter()
         filt.set_name(_("Soplos Theme Bundle (*.sth)"))
@@ -336,18 +339,57 @@ class ThemesTab(Gtk.Box):
         filt.add_pattern("*.sth")
         dialog.add_filter(filt)
 
-        if dialog.run() == Gtk.ResponseType.OK:
-            bundle_path = dialog.get_filename()
+        if dialog.run() != Gtk.ResponseType.OK:
             dialog.destroy()
-            self.parent_window.show_progress(_("Installing theme…"))
-            def progress_cb(f):
-                GLib.idle_add(self.parent_window.progress_bar.set_fraction, f)
-            def worker():
-                ok, result = self.export_service.import_theme(bundle_path, progress_callback=progress_cb)
-                GLib.idle_add(self._on_install_done, ok, result)
-            threading.Thread(target=worker, daemon=True).start()
-        else:
-            dialog.destroy()
+            return
+
+        bundle_path = dialog.get_filename()
+        dialog.destroy()
+
+        scope = self._ask_install_scope()
+        if scope is None:
+            return
+
+        self.parent_window.show_progress(_("Installing theme…"))
+        def progress_cb(f):
+            GLib.idle_add(self.parent_window.progress_bar.set_fraction, f)
+        def worker():
+            ok, result = self.export_service.import_theme(bundle_path, scope=scope, progress_callback=progress_cb)
+            GLib.idle_add(self._on_install_done, ok, result)
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _ask_install_scope(self) -> Optional[str]:
+        dialog = Gtk.Dialog(
+            title=_("Installation scope"),
+            parent=self.parent_window,
+            modal=True,
+            destroy_with_parent=True,
+        )
+        dialog.add_button(_("Cancel"),           Gtk.ResponseType.CANCEL)
+        dialog.add_button(_("Current user"),     Gtk.ResponseType.ACCEPT)
+        btn_global = dialog.add_button(_("Global (recommended)"), Gtk.ResponseType.OK)
+        btn_global.get_style_context().add_class("suggested-action")
+        dialog.set_default_size(380, -1)
+
+        area = dialog.get_content_area()
+        area.set_spacing(8)
+        area.set_margin_start(16)
+        area.set_margin_end(16)
+        area.set_margin_top(16)
+        area.set_margin_bottom(8)
+        area.pack_start(
+            Gtk.Label(label=_("Where should the theme assets be installed?")),
+            False, False, 0
+        )
+        dialog.show_all()
+        response = dialog.run()
+        dialog.destroy()
+
+        if response == Gtk.ResponseType.OK:
+            return "global"
+        if response == Gtk.ResponseType.ACCEPT:
+            return "user"
+        return None
 
     def _on_install_done(self, ok, result):
         if ok:

@@ -1,0 +1,258 @@
+SOPLOS THEME MANAGER - PLAN Y ESTADO
+=====================================
+Actualizado: 2026-06-13
+Estado: En desarrollo activo. Version 2.0.1.
+
+
+ARQUITECTURA ACTUAL (implementada)
+------------------------------------
+- USER_THEMES_DIR (~/.config/soplos-theme-manager/themes/) contiene temas ligeros:
+    metadata.json, theme.conf, preview/, assets/panel/
+    SIN copias de GTK themes, iconos, cursores ni wallpapers.
+
+- Los assets (GTK, iconos, cursor, wallpaper) viven donde siempre en el sistema:
+    /usr/share/themes/, /usr/share/icons/, rutas de wallpaper en xfconf.
+
+- GUARDAR (boton New):
+    Lee xfconf (nombres de GTK theme, iconos, cursor, fuente, WM, wallpaper).
+    Copia xfce4-panel.xml + contenido FILTRADO de ~/.config/xfce4/panel/ a assets/panel/.
+    (Solo se copian ficheros cuyos IDs esten referenciados en xfce4-panel.xml activo.)
+    Escribe theme.conf con los nombres/rutas.
+    Escribe metadata.json.
+    Toma screenshot para preview/.
+
+- APLICAR (boton Apply):
+    Lee theme.conf, aplica via xfconf-query (solo propiedades visuales).
+    Mata xfconfd despues de matar el panel para que relea el XML nuevo del disco.
+    Aplica estructura de paneles preservando plugins y docklike del usuario.
+    Limpia plugins huerfanos del directorio de paneles tras aplicar.
+    Escribe gtk-application-prefer-dark-theme en gtk-3.0/settings.ini y gtk-4.0/settings.ini.
+
+- EXPORTAR (boton Export) - formato soplos-theme-bundle-v3:
+    Lee theme.conf, localiza assets en el sistema.
+    GTK theme: crea tar con tar -czf -C /usr/share/themes NombreTema via pkexec.
+    Icon theme: lee Inherits en index.theme de forma recursiva para obtener la familia
+                completa (ej. Tela-ubuntu-dark + Tela-ubuntu). Crea tar con toda la
+                familia: tar -czf -C /usr/share/icons Tela-ubuntu Tela-ubuntu-dark.
+    Cursor theme: crea tar con tar -czf -C /usr/share/icons NombreCursor via pkexec.
+    Los tars preservan symlinks relativos entre directorios de la familia.
+    Empaqueta en .sth (zip): metadata.json, theme.conf, preview/, assets/panel/,
+    assets/gtk.tar, assets/icons.tar, assets/cursor.tar, assets/wallpaper/.
+
+- INSTALAR (boton Install) - formato soplos-theme-bundle-v3:
+    FileChooser para seleccionar el .sth.
+    Dialogo de alcance: Global (recomendado, via pkexec) o Usuario.
+    Global: extrae cada tar a directorio temporal, luego por cada directorio dentro
+            del tar: si NO existe en destino -> mv al destino + chmod a+rX.
+            Si ya existe -> skip (nunca sobreescribe assets instalados).
+    Usuario: mismo proceso sin pkexec.
+    No usa cp -rp ni rm -rf. Los permisos son correctos (root para global).
+    Crea entrada ligera en USER_THEMES_DIR (theme.conf con ruta absoluta de wallpaper).
+
+- PANELES:
+    Al aplicar: preserva plugins del usuario y apps pinadas del docklike.
+    Al guardar: captura xfce4-panel.xml + plugins filtrados por IDs del XML activo.
+    La estructura del panel (numero, posicion, tamano) es parte del tema.
+    El contenido (apps docklike, configs de plugins) es del usuario y se preserva.
+
+- TEMAS BASE:
+    4 temas en assets/soplos-base-themes/:
+      soplos-classic-black.sth  (1 panel, dark, Orchis-Orange-Dark-Compact)
+      soplos-classic-white.sth  (1 panel, light, Orchis-Orange-Light-Compact)
+      soplos-modern-black.sth   (2 paneles, dark, Orchis-Orange-Dark-Compact)
+      soplos-modern-white.sth   (2 paneles, light, Orchis-Orange-Light-Compact)
+    PENDIENTE: recrear todos con el nuevo formato v3 desde sistema limpio.
+
+
+BUGS CORREGIDOS
+-----------------
+
+BUG 1 - Panel no cambia de 2 a 1 al aplicar tema classic despues de modern [CORREGIDO]
+  Causa: xfconfd cachea los valores en memoria. Al escribir xfce4-panel.xml en disco
+         y reiniciar solo el panel, xfconfd devuelve los valores viejos (2 paneles).
+  Fix:   Matar xfconfd justo despues de matar xfce4-panel en _apply_panel_config.
+         xfconfd se reinicia automaticamente via D-Bus activation y lee el XML nuevo.
+
+BUG 2 - Dark mode del panel no se guarda/aplica [CORREGIDO]
+  Causa: Mismo problema que BUG 1. dark-mode esta en xfce4-panel.xml pero xfconfd
+         no recarga el fichero, devuelve el valor antiguo al panel.
+  Fix:   Mismo fix que BUG 1 (matar xfconfd).
+
+BUG 3 - Firefox y apps GTK4 se ven mezcladas (dark/light incorrecto) [CORREGIDO]
+  Causa: Firefox y apps GTK4 leen gtk-application-prefer-dark-theme de los ficheros
+         ~/.config/gtk-3.0/settings.ini y ~/.config/gtk-4.0/settings.ini.
+         El theme manager solo setea xfconf/xsettings pero no toca esos ficheros.
+  Fix:   Al guardar: leer prefer_dark de settings.ini y guardarlo en theme.conf.
+         Al aplicar: escribir ambos settings.ini con el valor correcto.
+
+BUG 4 - Al abrir carpeta desde docklike se abre en ruta incorrecta [CORREGIDO]
+  Causa: xfce4-panel se lanzaba con Popen sin cwd, heredaba el directorio de trabajo
+         del proceso Python (directorio del proyecto en desarrollo).
+  Fix:   Anadir cwd=str(Path.home()) al Popen de xfce4-panel.
+
+BUG 5 - Dock tab no funciona al tener 2 paneles [CORREGIDO]
+  Causa: DocklikeService.find_config_file() hacia glob("docklike-*.rc") y devolvia
+         el primero encontrado (orden arbitrario). Con residuos de docklike-1.rc
+         antiguo y el plugin activo en docklike-2, escribia en el fichero equivocado.
+         Ademas restart_panel() usaba xfce4-panel -r que no existe en XFCE 4.20.
+  Fix:   find_config_file() ahora parsea xfce4-panel.xml para obtener el ID real.
+         restart_panel() ahora usa quit + Popen.
+
+BUG 6 - Acumulacion de plugins huerfanos en ~/.config/xfce4/panel/ [CORREGIDO]
+  Causa: _save_panel_config() hacia copytree del directorio entero incluyendo
+         ficheros no referenciados por el XML (launchers y docklike de temas
+         anteriores). Los temas guardados capturaban esa suciedad acumulada.
+  Fix:   _save_panel_config() filtra por IDs del XML activo antes de copiar.
+         _apply_panel_config() llama _cleanup_orphan_plugins() tras aplicar el tema.
+         Nuevos helpers: _get_plugin_ids_from_xml(), _cleanup_orphan_plugins().
+
+BUG 7 - Export rompe icon themes que usan symlinks entre variantes [CORREGIDO]
+  Causa: La exportacion copiaba el directorio del icon theme con cp -r a un
+         directorio temporal. Los icon themes como Tela usan symlinks relativos
+         (Tela-ubuntu-dark/ -> ../Tela-ubuntu/). Al copiar solo Tela-ubuntu-dark/
+         los symlinks quedaban rotos (apuntaban a ../Tela-ubuntu/ que no existia
+         en el tmp). Python zipfile no incluye symlinks rotos en el zip.
+         Resultado: bundle con icon theme casi vacio (solo index.theme y pocos
+         ficheros reales). Al instalar el bundle, el directorio correcto del sistema
+         se eliminaba con rm -rf y se reemplazaba por la version vacia.
+  Fix:   Exportacion crea tars con tar -czf -C base_dir preservando symlinks y
+         su contexto. _find_icon_dependencies() lee Inherits en index.theme de
+         forma recursiva para incluir toda la familia en el mismo tar.
+         Ejemplo: icons.tar contiene Tela-ubuntu/ y Tela-ubuntu-dark/ juntos.
+
+BUG 8 - Install global sobreescribia y rompia assets ya instalados [CORREGIDO]
+  Causa: _global_install() hacia rm -rf del destino antes de copiar. Si el bundle
+         venia con contenido incompleto o corrupto, el asset correcto del sistema
+         quedaba destruido. Ademas no habia comprobacion de existencia previa.
+  Fix:   Install extrae el tar a un directorio temporal, luego por cada directorio
+         extraido: si NO existe en el destino -> mv al destino. Si ya existe -> skip.
+         Nunca se toca un asset que ya esta instalado correctamente.
+
+BUG 9 - Install global dejaba archivos con owner del usuario en /usr/share/ [CORREGIDO]
+  Causa: El script pkexec usaba cp -rp, que preserva el propietario del origen.
+         Como el origen era el directorio temporal (propiedad del usuario),
+         los archivos en /usr/share/themes/ y /usr/share/icons/ quedaban con
+         owner soplos en vez de root, y con permisos drwxrwxr-x en vez de drwxr-xr-x.
+  Fix:   tar extract sin flags de preservacion. Al extraer como root (via pkexec)
+         los archivos quedan con owner root y permisos correctos por defecto.
+         Adicionalmente se aplica chmod -R a+rX tras cada mv al destino final.
+
+BUG 10 - Export no incluia la familia completa de icon themes [CORREGIDO]
+  Causa: La exportacion solo bundleaba el directorio del icon theme seleccionado
+         (ej. Tela-ubuntu-dark) pero no sus dependencias (Tela-ubuntu). Al instalar
+         en otro sistema, los symlinks de Tela-ubuntu-dark apuntaban a Tela-ubuntu
+         que no estaba en el bundle y podia no existir en el sistema destino.
+  Fix:   _find_icon_dependencies() lee el campo Inherits= de index.theme de forma
+         recursiva, excluyendo temas estandar (hicolor, locolor, gnome, etc.).
+         Todos los directorios de la familia se incluyen en el mismo icons.tar.
+
+BUG 11 - Apply panel nunca se ejecutaba (TypeError silencioso) [CORREGIDO]
+  Causa: _apply_panel_config() llamaba a self._read_docklike_apps(XFCE_PANEL_DIR,
+         XFCE_PANEL_XML) pasando dos argumentos, pero la definicion de la funcion
+         solo aceptaba uno (panel_dir). Python lanzaba TypeError en el primer paso
+         del metodo. El try/except exterior lo engullia sin informar al usuario.
+         Resultado: el panel NUNCA cambiaba al aplicar un tema.
+  Fix:   _read_docklike_apps ahora acepta xml_path como segundo parametro opcional
+         y usa _find_docklike_plugin_id(xml_path) para leer el rc correcto.
+         El glob queda solo como fallback cuando el XML no esta disponible.
+
+BUG 12 - prefer_dark no se guardaba ni aplicaba en todos los casos [CORREGIDO]
+  Causa: _read_gtk_prefer_dark() devuelvia None si ~/.config/gtk-3.0/settings.ini
+         no existia o no contenia la clave gtk-application-prefer-dark-theme.
+         En ese caso prefer_dark no se escribia en theme.conf y al aplicar el tema
+         _write_gtk_prefer_dark() no se llamaba, dejando settings.ini intacto.
+         Temas guardados con el codigo anterior tampoco tenian prefer_dark en el conf.
+  Fix:   Al guardar: si settings.ini no tiene el valor, se infiere de si el nombre
+         del GTK theme contiene "dark" (case-insensitive).
+         Al aplicar: si prefer_dark no esta en theme.conf, se infiere del nombre del
+         GTK theme guardado. Si no hay tema, no se toca settings.ini.
+         Ambos settings.ini (gtk-3.0 y gtk-4.0) se escriben siempre al aplicar.
+
+BUG 13 - Script pkexec de install dejaba directorio temporal huerfano en /tmp [CORREGIDO]
+  Causa: _pkexec_install_tar() creaba TMPEXTR con mktemp -d y usaba set -e.
+         Si tar -xzf fallaba a mitad, set -e abortaba el script y rm -rf TMPEXTR
+         nunca se ejecutaba. El directorio temporal quedaba en /tmp hasta el reboot.
+  Fix:   Anadido trap 'rm -rf "$TMPEXTR"' EXIT inmediatamente despues de mktemp.
+         El shell ejecuta el trap tanto en salida normal como en abort por set -e.
+
+
+PENDIENTE (no bugs, tareas)
+-----------------------------
+- Recrear los 4 temas base desde sistema limpio con formato v3. Los .sth actuales
+  fueron generados con el codigo roto (v2) y deben descartarse.
+
+- MIME type para .sth con icono personalizado (para Thunar y gestor de archivos).
+  Necesita: XML en /usr/share/mime/packages/, icono en /usr/share/icons/hicolor/,
+  update-mime-database en postinst del paquete Debian.
+
+- Boton de ajustes de plugin (_on_plugin_settings): INVESTIGADO EN PROFUNDIDAD [2026-06-13].
+
+  CAUSA RAIZ: XFCE 4.20 elimino --plugin-event. No existe ninguna API D-Bus publica
+  para abrir el dialogo de configuracion de un plugin especifico desde un proceso externo.
+
+  ARQUITECTURA INTERNA DE XFCE (ingenieria inversa del codigo fuente en /tmp/xfce4-panel-src/):
+  - Cada plugin externo corre en su propio proceso wrapper (xfce4-panel-wrapper-2.0).
+  - El wrapper crea un GDBusProxy para org.xfce.Panel en la ruta
+    /org/xfce/Panel/Wrapper/<plugin_id>, escuchando la senal "Set".
+  - La unica senal que abre el configure dialog es Set{uint32 14, <false>}
+    (PROVIDER_PROP_TYPE_ACTION_SHOW_CONFIGURE), en wrapper/main.c funcion wrapper_gproxy_set().
+  - GDBusProxy filtra por sender: solo acepta senales del owner de org.xfce.Panel
+    (el proceso del panel). Las senales de cualquier otro proceso son descartadas por
+    el demonio D-Bus antes de llegar al callback del wrapper.
+  - No hay ningun metodo D-Bus publico en org.xfce.Panel para SHOW_CONFIGURE.
+  - PluginEvent(name, "configure") es rechazado por los plugins (RemoteEvent != show_configure).
+  - xfce4-panel --preferences=N abre el dialogo "Anadir elementos", no ajustes del plugin.
+
+  RECHAZADO: AT-SPI, parchear xfce4-panel, abrir preferencias del panel, hardcodear
+  configuracion por plugin (no escala, no conocemos todos los plugins).
+
+  SOLUCION PLANIFICADA: inyeccion de proceso via gdb [pendiente de implementar].
+  El wrapper es un proceso GTK estandar. La funcion xfce_panel_plugin_provider_show_configure()
+  esta disponible en libxfce4panel (cargada en el wrapper). Se puede invocar desde fuera
+  usando gdb --batch con ptrace:
+
+    gdb -p <wrapper_pid> --batch \
+      -ex 'call xfce_panel_plugin_provider_show_configure(gtk_bin_get_child(g_list_nth_data(gtk_window_list_toplevels(),0)))' \
+      -ex 'detach'
+
+  El wrapper tiene exactamente una ventana toplevel (GtkPlug), cuyo unico hijo es el
+  provider (XfcePanelPlugin). Funciona para CUALQUIER plugin sin conocerlo de antemano.
+
+  IMPLEMENTACION (pendiente):
+  1. Encontrar el PID del wrapper del plugin seleccionado: pgrep -f sobre cmdline del
+     wrapper que incluye el plugin_id (columna 3 del _active_store).
+  2. Ejecutar gdb --batch con el comando anterior.
+  3. Manejo de errores: gdb no disponible o ptrace denegado -> mostrar mensaje al usuario.
+  4. Alternativa sin gdb: helper C propio usando ptrace directamente, shipeado con
+     theme manager como binario auxiliar.
+
+- MIME type para .sth:
+    - Al hacer clic en un .sth desde Thunar/gestor de archivos → abrir Theme Manager.
+    - Al arrastrar un .sth dentro del programa → instalarlo directamente (drag-and-drop).
+    - Necesita: XML en /usr/share/mime/packages/, icono en /usr/share/icons/hicolor/,
+      update-mime-database en postinst del paquete Debian.
+
+- CSS de la aplicacion siempre oscuro incluso con tema claro activo.
+  El programa deberia respetar el tema GTK activo (claro u oscuro).
+
+- Pestana Wallpapers: no reconoce archivos .svg.
+
+- Pestana Wallpapers: boton para instalar nuevos wallpapers en /usr/share/backgrounds
+  (requiere pkexec para escritura en ruta del sistema).
+
+- Nueva pestana: Apariencias GTK.
+  Gestionar temas GTK instalados (listar, activar, previsualizar).
+
+- Nueva pestana: Iconos y Cursores.
+  - Listar y activar icon themes y cursor themes instalados.
+  - Instalar nuevos paquetes de iconos/cursores descargados (.tar.gz, .zip, etc.)
+    aunque esten comprimidos, directamente desde la UI.
+
+- Recrear los 4 temas base desde sistema limpio con formato v3. Los .sth actuales
+  fueron generados con el codigo roto (v2) y deben descartarse.
+
+
+Hay que revisar para reorganizar el contenido de la pestaña panel, puesto que al 
+estar todo en vertical, me rompe la estetica del resto de pestañas.
+
+Al ser una aplicación de themes, creo que la pestaña de usuario sobra.

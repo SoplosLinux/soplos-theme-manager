@@ -22,12 +22,14 @@ class DocklikeTab(Gtk.Box):
         self.parent_window = parent_window
         self.service = DocklikeService()
         self._pinned: List[dict] = []
+        self._ui_ready = False
 
         if not self.service.is_plugin_active():
             self._show_plugin_missing()
         else:
             self._setup_ui()
             self._load_pinned()
+        self.connect('map', self._on_mapped)
 
     def _show_plugin_missing(self):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
@@ -47,6 +49,14 @@ class DocklikeTab(Gtk.Box):
         sub.set_max_width_chars(50)
         sub.get_style_context().add_class('dim-label')
         box.pack_start(sub, False, False, 0)
+
+        refresh_btn = Gtk.Button()
+        ref_inner = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        ref_inner.pack_start(Gtk.Image.new_from_icon_name('view-refresh', Gtk.IconSize.BUTTON), False, False, 0)
+        ref_inner.pack_start(Gtk.Label(label=_("Refresh")), False, False, 0)
+        refresh_btn.add(ref_inner)
+        refresh_btn.connect('clicked', self._on_refresh)
+        box.pack_start(refresh_btn, False, False, 0)
 
     def _setup_ui(self):
         # Panel izquierdo: lista de apps ancladas
@@ -147,7 +157,7 @@ class DocklikeTab(Gtk.Box):
         scrolled2.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         right_box.pack_start(scrolled2, True, True, 0)
 
-        self.apps_store = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str)
+        self.apps_store = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str, str)  # pixbuf, name, desktop_path, icon_path
         self.apps_filter = self.apps_store.filter_new()
         self.apps_filter.set_visible_func(self._apps_filter_func)
 
@@ -204,7 +214,25 @@ class DocklikeTab(Gtk.Box):
         self.status_label.get_style_context().add_class('dim-label')
         self.status_label.set_margin_bottom(6)
         self.pack_start(self.status_label, False, False, 0)
+        self._ui_ready = True
 
+    def _on_mapped(self, _widget):
+        if self._ui_ready:
+            # Reload only pinned list in case docklike moved to a different panel/ID
+            self._reload_pinned_only()
+        elif self.service.is_plugin_active():
+            # Plugin became active after initial load — rebuild the UI
+            for child in self.get_children():
+                self.remove(child)
+            self._setup_ui()
+            self._load_pinned()
+
+    def _on_refresh(self, _btn):
+        if self.service.is_plugin_active():
+            for child in self.get_children():
+                self.remove(child)
+            self._setup_ui()
+            self._load_pinned()
 
     def _load_pinned(self):
         self.status_label.set_text(_("Loading…"))
@@ -213,6 +241,20 @@ class DocklikeTab(Gtk.Box):
             apps = self.service.get_available_apps()
             GLib.idle_add(self._fill_lists, pinned, apps)
         threading.Thread(target=worker, daemon=True).start()
+
+    def _reload_pinned_only(self):
+        def worker():
+            pinned = self.service.read_pinned()
+            GLib.idle_add(self._fill_pinned, pinned)
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _fill_pinned(self, pinned: list):
+        self._pinned = pinned
+        self.store.clear()
+        for app in pinned:
+            pixbuf = self._load_icon(app.get('icon_path'), LIST_ICON_SIZE)
+            self.store.append([pixbuf, app['name'], app['desktop_path']])
+        self.status_label.set_text(_("{n} pinned").format(n=len(pinned)))
 
     def _fill_lists(self, pinned: list, apps: list):
         self._pinned = pinned
@@ -224,7 +266,7 @@ class DocklikeTab(Gtk.Box):
         self.apps_store.clear()
         for app in apps:
             pixbuf = self._load_icon(app.get('icon_path'), ICON_SIZE)
-            self.apps_store.append([pixbuf, app['name'], app['desktop_path']])
+            self.apps_store.append([pixbuf, app['name'], app['desktop_path'], app.get('icon_path', '')])
 
         self.status_label.set_text(_("{n} pinned").format(n=len(pinned)))
 
@@ -278,9 +320,10 @@ class DocklikeTab(Gtk.Box):
         if not it:
             return
         it_real = self.apps_filter.convert_iter_to_child_iter(it)
-        pixbuf = self.apps_store.get_value(it_real, 0)
         name = self.apps_store.get_value(it_real, 1)
         desktop_path = self.apps_store.get_value(it_real, 2)
+        icon_path = self.apps_store.get_value(it_real, 3)
+        pixbuf = self._load_icon(icon_path, LIST_ICON_SIZE)
 
         # Evitar duplicados
         for row in self.store:

@@ -16,12 +16,12 @@ class ScreenshotService:
         delay: int = 2,
         progress_callback: Optional[Callable] = None
     ) -> bool:
-        view_dir = theme_dir / "view"
-        view_dir.mkdir(exist_ok=True)
+        preview_dir = theme_dir / "preview"
+        preview_dir.mkdir(exist_ok=True)
 
-        full_path = view_dir / "preview_full.png"
-        preview_path = view_dir / "preview.png"
-        thumbnail_path = view_dir / "thumbnail.png"
+        full_path = preview_dir / "preview_full.png"
+        preview_path = preview_dir / "preview.png"
+        thumbnail_path = preview_dir / "thumbnail.png"
 
         try:
             if progress_callback:
@@ -83,7 +83,7 @@ class ScreenshotService:
             if progress_callback:
                 progress_callback(1.0)
 
-            logger.info(f"Screenshots saved to {view_dir}")
+            logger.info(f"Screenshots saved to {preview_dir}")
             return True
 
         except FileNotFoundError as e:

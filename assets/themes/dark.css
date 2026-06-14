@@ -245,8 +245,8 @@ label {
 
 .theme-card-selected {
     background-color: @soplos_dark_bg;
-    border: 2px solid @soplos_orange;
-    box-shadow: 0 0 8px alpha(@soplos_orange, 0.3);
+    border: 1px solid @soplos_orange;
+    box-shadow: none;
 }
 
 .theme-preview-box {
@@ -315,9 +315,24 @@ scrolledwindow viewport {
     background-color: @soplos_dark_bg;
 }
 
+.soplos-content {
+    background-color: @soplos_darker_bg;
+    border-radius: 8px;
+    margin: 8px;
+}
+
+scrolledwindow.soplos-content viewport {
+    background-color: @soplos_darker_bg;
+    border-radius: 8px;
+}
+
 *:selected {
     background-color: @soplos_orange;
     color: #000000;
+}
+
+flowboxchild:selected {
+    background-color: transparent;
 }
 
 * {
