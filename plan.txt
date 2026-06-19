@@ -251,6 +251,13 @@ PENDIENTE (no bugs, tareas)
 - Recrear los 4 temas base desde sistema limpio con formato v3. Los .sth actuales
   fueron generados con el codigo roto (v2) y deben descartarse.
 
+- TRADUCCIONES (strings pendientes de anadir a los diccionarios cuando se creen los .po):
+  En themes_tab.py (_on_restore_base_themes / _on_restore_done):
+    "Restore"
+    "No base themes found."
+    "Restoring base themes..."
+    "All base themes are already present."
+
 
 Hay que revisar para reorganizar el contenido de la pestaña panel, puesto que al 
 estar todo en vertical, me rompe la estetica del resto de pestañas.

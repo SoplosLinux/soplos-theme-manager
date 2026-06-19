@@ -1,7 +1,7 @@
 # Soplos Theme Manager
 
 [![License: GPL-3.0+](https://img.shields.io/badge/License-GPL--3.0%2B-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Version](https://img.shields.io/badge/version-2.0.1-green.svg)]()
+[![Version](https://img.shields.io/badge/version-2.0.1--2-green.svg)]()
 
 Desktop theme manager for Soplos Linux Tyron (XFCE). Apply, create, export and import complete desktop themes with a single click.
 
@@ -98,6 +98,14 @@ Developed by Sergi Perich (<info@soploslinux.com>)
 - [Donate](https://www.paypal.com/paypalme/isubdes)
 
 ## 📦 Versions
+
+### v2.0.1-2 (2026-06-19)
+- Themes tab: bundled base themes auto-imported on first launch. Deleted base themes are not reimposed automatically.
+- Themes tab: new "Restore" button reimports any missing base themes on demand.
+- Startup: one-time cleanup of v1.x legacy artifacts on upgrade (`~/xfce-panel-backup/`, `~/.themes-backup/`, legacy logs).
+- Fixed: user-scope install was duplicating system assets (icon themes, GTK themes) to `~/.icons/` and `~/.themes/` even when already present in `/usr/share/`. Assets that exist at system level are now skipped.
+- Fixed: `debian/control` had unnecessary polkit-related dependencies — reduced to just `polkit`.
+- Fixed: base themes seed and Restore button used wrong asset path (`soplos-base-themes/` instead of `base-themes/`).
 
 ### v2.0.1 (2026-06-10)
 - Theme bundle format v2: bundles now contain the actual GTK theme, icon theme, cursor theme and wallpaper directories. Fully portable across machines. Format changed from tar.gz to zip.

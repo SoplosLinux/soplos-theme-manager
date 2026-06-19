@@ -33,8 +33,16 @@ class ThemeManagerApp(Gtk.Application):
             self._cleanup_pycache()
             self.config = get_config()
             self._ensure_user_dirs()
+            self._cleanup_legacy()
             self._apply_css()
-            Gtk.Window.set_default_icon_name(APPLICATION_ID)
+            from gi.repository import GdkPixbuf
+            from utils.constants import ASSETS_DIR
+            icon_path = ASSETS_DIR / "icons" / f"{APPLICATION_ID}.png"
+            if icon_path.exists():
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file(str(icon_path))
+                Gtk.Window.set_default_icon(pixbuf)
+            else:
+                Gtk.Window.set_default_icon_name(APPLICATION_ID)
         except Exception as e:
             logger.critical(f"Error during startup: {e}", exc_info=True)
             self.quit()
@@ -42,6 +50,61 @@ class ThemeManagerApp(Gtk.Application):
     def _ensure_user_dirs(self):
         from utils.constants import USER_THEMES_DIR
         USER_THEMES_DIR.mkdir(parents=True, exist_ok=True)
+
+    def _cleanup_legacy(self):
+        import shutil
+        config_dir = Path.home() / ".config" / "soplos-theme-manager"
+        marker = config_dir / ".v2_migration_done"
+        if marker.exists():
+            return
+
+        removals = [
+            Path.home() / "xfce-panel-backup",
+            Path.home() / ".themes-backup",
+            config_dir / "logs",
+        ]
+        for path in removals:
+            if path.exists():
+                shutil.rmtree(path, ignore_errors=True)
+                logger.debug(f"Legacy cleanup: removed {path}")
+
+        marker.touch()
+
+    def _seed_base_themes(self):
+        import zipfile
+        import json
+        from utils.constants import USER_THEMES_DIR
+        from services.theme_export_service import ThemeExportService
+
+        from utils.constants import ASSETS_DIR
+        base_dir = ASSETS_DIR / "base-themes"
+        if not base_dir.exists():
+            return
+
+        sth_files = list(base_dir.glob("*.sth"))
+        if not sth_files:
+            return
+
+        export_service = ThemeExportService()
+        for sth in sth_files:
+            try:
+                with zipfile.ZipFile(str(sth), "r") as zf:
+                    names = zf.namelist()
+                    candidates = [n for n in names if n.endswith("/metadata.json") or n == "metadata.json"]
+                    if not candidates:
+                        continue
+                    with zf.open(candidates[0]) as mf:
+                        metadata = json.loads(mf.read().decode("utf-8"))
+                theme_name = metadata.get("name")
+                if not theme_name or (USER_THEMES_DIR / theme_name).exists():
+                    continue
+                ok, msg = export_service.import_theme(str(sth), scope="user")
+                if ok:
+                    logger.info(f"Theme imported: {theme_name} (scope=user)")
+                else:
+                    logger.warning(f"Failed to import base theme {sth.name}: {msg}")
+            except Exception as e:
+                logger.warning(f"Error seeding base theme {sth.name}: {e}")
 
     def _apply_css(self):
         themes_dir = Path(__file__).parent.parent / "assets" / "themes"
@@ -86,6 +149,8 @@ class ThemeManagerApp(Gtk.Application):
                     config=self.config
                 )
             self.main_window.present()
+            import threading
+            threading.Thread(target=self._seed_base_themes, daemon=True).start()
         except Exception as e:
             logger.critical(f"Error activating application: {e}", exc_info=True)
             self.quit()

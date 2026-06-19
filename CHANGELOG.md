@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1-2] - 2026-06-19
+
+### Added
+- **Themes tab — base themes auto-seeded on first launch**: bundled `.sth` files in `assets/base-themes/` are imported automatically into `~/.config/soplos-theme-manager/themes/` on startup if they are not already present. No pkexec, no prompts. If the user deletes a base theme it is not reimposed — a manual restore is required.
+- **Themes tab — Restore button**: new "Restore" button in the gallery toolbar reimports any missing base themes on demand. Already-present themes are skipped. If all base themes are present, shows an info dialog.
+- **Startup — v1.x legacy cleanup**: on first launch after upgrade from v1.x, removes all legacy artifacts left by the old theme manager: `~/xfce-panel-backup/`, `~/.themes-backup/` (v1 theme storage), `~/.config/soplos-theme-manager/logs/`. Runs once and writes a marker file to avoid repeating.
+
+### Fixed
+- **Packaging — reduced dependencies**: `debian/control` was pulling in multiple polkit-related packages that installed unnecessary components on the user's system. Reduced to just `polkit`.
+- **Base themes seed — wrong asset path**: seed and Restore button were looking for `.sth` files in `assets/soplos-base-themes/` instead of `assets/base-themes/`.
+- **User-scope install — system assets duplicated to home**: `_install_tar_user` was copying icon themes and GTK themes to `~/.icons/` and `~/.themes/` even when the same asset already existed in `/usr/share/icons/` or `/usr/share/themes/`. Assets that exist at system level are now skipped; only assets absent from the system are installed to the user's home.
+
 ## [2.0.1] - 2026-06-10
 
 ### ✨ Added
@@ -47,6 +59,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Install global — existing system assets destroyed**: `_global_install()` ran `rm -rf` on the destination before copying. An incomplete or empty bundle would destroy a correctly installed system asset. Fixed: each tar is now extracted to a temp dir; each top-level directory is moved to the destination only if it does not already exist there. Existing assets are never touched.
 - **Install global — wrong owner on installed files**: `cp -rp` preserved the ownership of the temp dir (user `soplos`) when installing to `/usr/share/`. Files in `/usr/share/themes/` and `/usr/share/icons/` ended up owned by the user instead of root, with group-writable permissions. Fixed: tar extraction without preservation flags gives root ownership and correct permissions by default; `chmod -R a+rX` is applied after each move.
 - **Bundle format**: bumped to `soplos-theme-bundle-v3`. Bundles now contain `assets/gtk.tar`, `assets/icons.tar` and `assets/cursor.tar` instead of raw directory trees. Old v2 bundles are rejected on import.
+
+### Changes (2026-06-19)
+- **Themes tab — base themes auto-seeded on first launch**: the 4 bundled `.sth` files in `assets/soplos-base-themes/` are now imported automatically into `~/.config/soplos-theme-manager/themes/` on startup if they are not already present. No pkexec, no prompts.
+- **Themes tab — Restore button**: new "Restore" button in the gallery toolbar reimports any missing base themes on demand. Already-present themes are skipped. If all base themes are present, shows an info dialog.
+- **Packaging — reduced dependencies**: `debian/control` was pulling in multiple polkit-related packages that installed unnecessary components on the user's system. Reduced to just `polkit`.
 
 ### Research (2026-06-13)
 - **Panel tab — Settings button — investigation complete**: Full reverse-engineering of xfce4-panel 4.20 internals (source cloned and studied). Root cause: the only mechanism to trigger a plugin's configure dialog is the internal D-Bus signal `Set{uint32 14, <false>}` (PROVIDER_PROP_TYPE_ACTION_SHOW_CONFIGURE) on `/org/xfce/Panel/Wrapper/<id>`, emitted exclusively by the panel process itself. The wrapper's `GDBusProxy` subscribes with the panel's unique bus name as sender filter — signals from any other process are dropped by the D-Bus daemon before reaching the wrapper callback. No public D-Bus method exists for SHOW_CONFIGURE. `PluginEvent("configure")` via `org.xfce.Panel` maps to `remote_event`, not `show_configure`, and is rejected by plugins. Planned implementation: inject the call via `gdb --batch -p <wrapper_pid>` calling `xfce_panel_plugin_provider_show_configure(gtk_bin_get_child(gtk_window_list_toplevels()->data))` — works for any plugin generically without knowing it in advance. Fallback: ship a small C helper using ptrace directly if gdb is unavailable.

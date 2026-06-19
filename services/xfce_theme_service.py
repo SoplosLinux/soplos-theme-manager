@@ -239,11 +239,14 @@ class XfceThemeService:
         return None
 
     def _xfconf_set(self, channel: str, prop: str, value: str, prop_type: str = "string"):
-        subprocess.run(
-            ["xfconf-query", "-c", channel, "-p", prop,
-             "--create", "-t", prop_type, "-s", value],
-            capture_output=True, timeout=5
-        )
+        try:
+            subprocess.run(
+                ["xfconf-query", "-c", channel, "-p", prop,
+                 "--create", "-t", prop_type, "-s", value],
+                capture_output=True, timeout=10
+            )
+        except subprocess.TimeoutExpired:
+            logger.warning(f"xfconf-query timed out: {channel} {prop}")
 
     def _apply_visual_xfconf(self, conf: Dict[str, str], wallpaper_path: Optional[str]):
         # GTK visual

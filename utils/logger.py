@@ -11,7 +11,7 @@ def setup_logger(name: str = "theme-manager") -> logging.Logger:
         logger.removeHandler(handler)
 
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
+    console_handler.setLevel(logging.WARNING)
     console_handler.setFormatter(logging.Formatter(LOG_FORMAT))
     logger.addHandler(console_handler)
 

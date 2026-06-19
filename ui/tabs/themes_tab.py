@@ -139,6 +139,7 @@ class ThemesTab(Gtk.Box):
         actions_box.pack_start(btn(_("Export ↑"), 'document-save-as',          self._on_export), False, False, 0)
         actions_box.pack_start(btn(_("Install ↓"),'document-open',             self._on_install), False, False, 0)
         actions_box.pack_start(btn(_("Refresh"),  'view-refresh',              lambda w: self._load_themes_async()), False, False, 0)
+        actions_box.pack_start(btn(_("Restore"),  'document-revert',           self._on_restore_base_themes), False, False, 0)
 
 
     def _load_themes_async(self):
@@ -396,6 +397,53 @@ class ThemesTab(Gtk.Box):
             self._load_themes_async()
         else:
             self.parent_window.show_progress(_("Install error: {e}").format(e=result), fraction=0.0)
+
+    def _on_restore_base_themes(self, btn):
+        import zipfile
+        import json
+        from utils.constants import USER_THEMES_DIR, ASSETS_DIR
+
+        base_dir = ASSETS_DIR / "base-themes"
+        if not base_dir.exists():
+            self._show_info(_("No base themes found."))
+            return
+
+        sth_files = list(base_dir.glob("*.sth"))
+        if not sth_files:
+            self._show_info(_("No base themes found."))
+            return
+
+        self.parent_window.show_progress(_("Restoring base themes…"))
+
+        def worker():
+            restored = 0
+            for sth in sth_files:
+                try:
+                    with zipfile.ZipFile(str(sth), "r") as zf:
+                        names = zf.namelist()
+                        candidates = [n for n in names if n.endswith("/metadata.json") or n == "metadata.json"]
+                        if not candidates:
+                            continue
+                        with zf.open(candidates[0]) as mf:
+                            metadata = json.loads(mf.read().decode("utf-8"))
+                    theme_name = metadata.get("name")
+                    if not theme_name or (USER_THEMES_DIR / theme_name).exists():
+                        continue
+                    ok, _ = self.export_service.import_theme(str(sth), scope="user")
+                    if ok:
+                        restored += 1
+                except Exception:
+                    pass
+            GLib.idle_add(self._on_restore_done, restored)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_restore_done(self, restored):
+        self.parent_window.hide_progress()
+        if restored:
+            self._load_themes_async()
+        else:
+            self._show_info(_("All base themes are already present."))
 
     def _show_info(self, message: str):
         dialog = Gtk.MessageDialog(

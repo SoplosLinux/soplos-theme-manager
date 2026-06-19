@@ -432,7 +432,15 @@ class ThemeExportService:
         self._run_pkexec_script(lines)
 
     def _install_tar_user(self, tar_path: Path, dest_base: Path):
-        """Extract tar to user dest, skipping dirs that already exist."""
+        """Extract tar to user dest, skipping dirs that already exist at user or system level."""
+        from utils.constants import USER_ICONS_DIR, SYSTEM_ICONS_DIR, USER_GTK_DIR, SYSTEM_GTK_DIR
+        if dest_base == USER_ICONS_DIR:
+            system_base = SYSTEM_ICONS_DIR
+        elif dest_base == USER_GTK_DIR:
+            system_base = SYSTEM_GTK_DIR
+        else:
+            system_base = None
+
         with tempfile.TemporaryDirectory(prefix="soplos-tar-") as tmp:
             tmp_path = Path(tmp)
             subprocess.run(
@@ -443,8 +451,11 @@ class ThemeExportService:
             for item in tmp_path.iterdir():
                 if item.is_dir():
                     dest = dest_base / item.name
-                    if not dest.exists():
-                        shutil.move(str(item), str(dest))
+                    if dest.exists():
+                        continue
+                    if system_base and (system_base / item.name).exists():
+                        continue
+                    shutil.move(str(item), str(dest))
 
     def _pkexec_install_file(self, src: Path, dest: Path):
         """Copy a single file to a system path via pkexec."""
