@@ -1,7 +1,7 @@
 # Soplos Theme Manager
 
 [![License: GPL-3.0+](https://img.shields.io/badge/License-GPL--3.0%2B-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Version](https://img.shields.io/badge/version-2.0.1--2-green.svg)]()
+[![Version](https://img.shields.io/badge/version-2.0.1--3-green.svg)]()
 
 Desktop theme manager for Soplos Linux Tyron (XFCE). Apply, create, export and import complete desktop themes with a single click.
 
