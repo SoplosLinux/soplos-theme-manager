@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="soplos-theme-manager",
-    version="2.0.1-3",
+    version="2.0.1-4",
     author="Sergi Perich",
     author_email="info@soploslinux.com",
     description="Desktop theme manager for Soplos Linux Tyron (XFCE)",
