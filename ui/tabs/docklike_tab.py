@@ -12,6 +12,7 @@ from utils.logger import logger
 
 ICON_SIZE = 32
 LIST_ICON_SIZE = 48
+PREVIEW_ICON_SIZE = 34
 
 
 class DocklikeTab(Gtk.Box):
@@ -59,6 +60,40 @@ class DocklikeTab(Gtk.Box):
         box.pack_start(refresh_btn, False, False, 0)
 
     def _setup_ui(self):
+        # ── Live horizontal dock preview ────────────────────────────────────
+        preview_card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        preview_card.get_style_context().add_class('theme-card')
+        preview_card.set_margin_start(12)
+        preview_card.set_margin_end(12)
+        preview_card.set_margin_top(10)
+        preview_card.set_margin_bottom(4)
+        self.pack_start(preview_card, False, False, 0)
+
+        preview_title = Gtk.Label()
+        preview_title.set_markup(
+            f"<b>{_('Dock preview')}</b>  "
+            f"<span alpha='55%' size='small'>{_('how it will look on screen')}</span>"
+        )
+        preview_title.set_halign(Gtk.Align.START)
+        preview_title.set_margin_start(8)
+        preview_title.set_margin_top(8)
+        preview_card.pack_start(preview_title, False, False, 0)
+
+        preview_strip_wrap = Gtk.Box()
+        preview_strip_wrap.set_halign(Gtk.Align.CENTER)
+        preview_strip_wrap.set_margin_start(8)
+        preview_strip_wrap.set_margin_end(8)
+        preview_strip_wrap.set_margin_bottom(8)
+        preview_card.pack_start(preview_strip_wrap, False, False, 0)
+
+        self._dock_bar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        self._dock_bar.get_style_context().add_class('docklike-preview-bar')
+        self._dock_bar.set_margin_start(10)
+        self._dock_bar.set_margin_end(10)
+        self._dock_bar.set_margin_top(6)
+        self._dock_bar.set_margin_bottom(6)
+        preview_strip_wrap.pack_start(self._dock_bar, False, False, 0)
+
         # Panel izquierdo: lista de apps ancladas
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
         self.pack_start(hbox, True, True, 0)
@@ -87,6 +122,10 @@ class DocklikeTab(Gtk.Box):
 
         # ListStore: icon_path (str), name (str), desktop_path (str)
         self.store = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str)
+        self.store.connect('row-inserted',   self._on_store_changed)
+        self.store.connect('row-deleted',    self._on_store_changed)
+        self.store.connect('row-changed',    self._on_store_changed)
+        self.store.connect('rows-reordered', self._on_store_changed)
         self.treeview = Gtk.TreeView(model=self.store)
         self.treeview.set_headers_visible(False)
         self.treeview.set_reorderable(True)
@@ -214,6 +253,7 @@ class DocklikeTab(Gtk.Box):
         self.status_label.get_style_context().add_class('dim-label')
         self.status_label.set_margin_bottom(6)
         self.pack_start(self.status_label, False, False, 0)
+        self._refresh_dock_preview()
         self._ui_ready = True
 
     def _on_mapped(self, _widget):
@@ -269,6 +309,37 @@ class DocklikeTab(Gtk.Box):
             self.apps_store.append([pixbuf, app['name'], app['desktop_path'], app.get('icon_path', '')])
 
         self.status_label.set_text(_("{n} pinned").format(n=len(pinned)))
+
+    # ── Live horizontal dock preview ────────────────────────────────────────
+
+    def _on_store_changed(self, *_args):
+        self._refresh_dock_preview()
+
+    def _refresh_dock_preview(self):
+        for child in list(self._dock_bar.get_children()):
+            self._dock_bar.remove(child)
+
+        if len(self.store) == 0:
+            empty = Gtk.Label(label=_("Your dock is empty — pin an app below"))
+            empty.get_style_context().add_class('dim-label')
+            empty.set_margin_start(10)
+            empty.set_margin_end(10)
+            self._dock_bar.pack_start(empty, False, False, 0)
+        else:
+            for row in self.store:
+                pixbuf = row[0]
+                img = Gtk.Image()
+                if pixbuf:
+                    scaled = pixbuf.scale_simple(
+                        PREVIEW_ICON_SIZE, PREVIEW_ICON_SIZE, GdkPixbuf.InterpType.BILINEAR
+                    )
+                    img.set_from_pixbuf(scaled)
+                else:
+                    img.set_from_icon_name('application-x-executable', Gtk.IconSize.LARGE_TOOLBAR)
+                img.set_tooltip_text(row[1])
+                self._dock_bar.pack_start(img, False, False, 0)
+
+        self._dock_bar.show_all()
 
     def _load_icon(self, icon_path: Optional[str], size: int) -> Optional[GdkPixbuf.Pixbuf]:
         if not icon_path:

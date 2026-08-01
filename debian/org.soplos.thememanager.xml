@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-soplos-theme">
+    <comment>Soplos Theme Bundle</comment>
+    <comment xml:lang="es">Paquete de tema Soplos</comment>
+    <comment xml:lang="fr">Paquet de thème Soplos</comment>
+    <comment xml:lang="pt">Pacote de tema Soplos</comment>
+    <comment xml:lang="de">Soplos-Themenpaket</comment>
+    <comment xml:lang="it">Pacchetto tema Soplos</comment>
+    <comment xml:lang="ru">Пакет темы Soplos</comment>
+    <comment xml:lang="ro">Pachet de temă Soplos</comment>
+    <glob pattern="*.sth"/>
+    <icon name="application-x-soplos-theme"/>
+  </mime-type>
+</mime-info>

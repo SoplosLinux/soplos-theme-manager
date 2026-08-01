@@ -11,6 +11,7 @@ from utils.constants import (
     USER_THEMES_DIR,
     USER_GTK_DIR, USER_ICONS_DIR, USER_WALLPAPERS_DIR,
     SYSTEM_GTK_DIR, SYSTEM_ICONS_DIR, SYSTEM_WALLPAPERS_DIR,
+    SYSTEM_WALLPAPERS_INSTALL_DIR,
     SYSTEM_GTK_SEARCH, SYSTEM_ICONS_SEARCH,
     THEME_BUNDLE_EXT, THEME_BUNDLE_FORMAT,
 )
@@ -457,14 +458,20 @@ class ThemeExportService:
                         continue
                     shutil.move(str(item), str(dest))
 
-    def _pkexec_install_file(self, src: Path, dest: Path):
-        """Copy a single file to a system path via pkexec."""
-        lines = [
-            "#!/bin/sh", "set -e",
-            f'mkdir -p "{dest.parent}"',
-            f'cp "{src}" "{dest}"',
-        ]
-        self._run_pkexec_script(lines)
+    def install_wallpapers_system(self, src_paths: List[str]) -> Tuple[bool, str]:
+        """Copy wallpaper files into /usr/share/backgrounds via a single pkexec call."""
+        dest_dir = SYSTEM_WALLPAPERS_INSTALL_DIR
+        lines = ["#!/bin/sh", "set -e", f'mkdir -p "{dest_dir}"']
+        for src in src_paths:
+            name = Path(src).name
+            lines.append(f'cp "{src}" "{dest_dir}/{name}"')
+            lines.append(f'chmod a+r "{dest_dir}/{name}"')
+        try:
+            self._run_pkexec_script(lines)
+            return True, ""
+        except Exception as e:
+            logger.warning(f"Wallpaper install failed: {e}")
+            return False, str(e)
 
     def _run_pkexec_script(self, lines: list):
         fd, script_path = tempfile.mkstemp(suffix=".sh", prefix="soplos-theme-")

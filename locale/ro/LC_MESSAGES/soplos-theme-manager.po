@@ -1,0 +1,823 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the soplos-theme-manager package.
+# Sergi Perich <info@soploslinux.com>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: soplos-theme-manager 2.0.1-5\n"
+"Report-Msgid-Bugs-To: info@soploslinux.com\n"
+"POT-Creation-Date: 2026-08-01 06:58+0200\n"
+"PO-Revision-Date: 2026-08-01 12:00+0200\n"
+"Last-Translator: Sergi Perich <info@soploslinux.com>\n"
+"Language-Team: Romanian\n"
+"Language: ro\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: main.py:36
+#, python-brace-format
+msgid ""
+"Failed to start:\n"
+"{error}"
+msgstr ""
+"Pornirea a eșuat:\n"
+"{error}"
+
+#: services/screenshot_service.py:34
+#, python-brace-format
+msgid "Taking screenshot in {n} seconds…"
+msgstr "Se face captura de ecran peste {n} secunde…"
+
+#: ui/main_window.py:52
+msgid "Themes"
+msgstr "Teme"
+
+#: ui/main_window.py:53
+msgid "Wallpapers"
+msgstr "Fundaluri"
+
+#: ui/main_window.py:54 ui/tabs/gtk_themes_tab.py:50
+msgid "GTK Themes"
+msgstr "Teme GTK"
+
+#: ui/main_window.py:55
+msgid "Icons & Cursors"
+msgstr "Pictograme și cursoare"
+
+#: ui/main_window.py:56
+msgid "Panel"
+msgstr "Panou"
+
+#: ui/main_window.py:57
+msgid "Dock"
+msgstr "Dock"
+
+#: ui/main_window.py:58
+msgid "Login Screen"
+msgstr "Ecran de autentificare"
+
+#: ui/main_window.py:153
+msgid "Working…"
+msgstr "Se procesează…"
+
+#: ui/main_window.py:180
+msgid "Soplos Linux Tyron — XFCE"
+msgstr "Soplos Linux Tyron — XFCE"
+
+#: ui/main_window.py:232
+msgid "Desktop theme manager for Soplos Linux Tyron."
+msgstr "Manager de teme pentru desktopul Soplos Linux Tyron."
+
+#: ui/main_window.py:235
+msgid "Author"
+msgstr "Autor"
+
+#: ui/tabs/docklike_tab.py:44
+msgid "Docklike plugin is not active in your panel."
+msgstr "Modulul Docklike nu este activ în panoul tău."
+
+#: ui/tabs/docklike_tab.py:48
+msgid "Add the Docklike Taskbar plugin to your XFCE panel to use this feature."
+msgstr "Adaugă modulul Docklike Taskbar la panoul tău XFCE pentru a folosi această funcție."
+
+#: ui/tabs/docklike_tab.py:57 ui/tabs/themes_tab.py:141
+msgid "Refresh"
+msgstr "Reîmprospătează"
+
+#: ui/tabs/docklike_tab.py:74
+msgid "Dock preview"
+msgstr "Previzualizare dock"
+
+#: ui/tabs/docklike_tab.py:75
+msgid "how it will look on screen"
+msgstr "cum va arăta pe ecran"
+
+#: ui/tabs/docklike_tab.py:111
+msgid "Pinned Applications"
+msgstr "Aplicații fixate"
+
+#: ui/tabs/docklike_tab.py:156 ui/tabs/panel_tab.py:600
+msgid "Move Up"
+msgstr "Mută în sus"
+
+#: ui/tabs/docklike_tab.py:157 ui/tabs/panel_tab.py:601
+msgid "Move Down"
+msgstr "Mută în jos"
+
+#: ui/tabs/docklike_tab.py:158 ui/tabs/panel_tab.py:602
+#: ui/tabs/themes_tab.py:132
+msgid "Remove"
+msgstr "Elimină"
+
+#: ui/tabs/docklike_tab.py:178
+msgid "Available Applications"
+msgstr "Aplicații disponibile"
+
+#: ui/tabs/docklike_tab.py:186
+msgid "Search applications…"
+msgstr "Caută aplicații…"
+
+#: ui/tabs/docklike_tab.py:230
+msgid "Pin to Dock"
+msgstr "Fixează în dock"
+
+#: ui/tabs/docklike_tab.py:246 ui/tabs/lightdm_tab.py:305
+#: ui/tabs/panel_tab.py:518
+msgid "Save & Apply"
+msgstr "Salvează și aplică"
+
+#: ui/tabs/docklike_tab.py:278
+msgid "Loading…"
+msgstr "Se încarcă…"
+
+#: ui/tabs/docklike_tab.py:297 ui/tabs/docklike_tab.py:311
+#, python-brace-format
+msgid "{n} pinned"
+msgstr "{n} fixate"
+
+#: ui/tabs/docklike_tab.py:323
+msgid "Your dock is empty — pin an app below"
+msgstr "Dock-ul tău este gol — fixează o aplicație mai jos"
+
+#: ui/tabs/docklike_tab.py:386
+msgid "Removed. Click 'Save & Apply' to confirm."
+msgstr "Eliminată. Fă clic pe „Salvează și aplică” pentru a confirma."
+
+#: ui/tabs/docklike_tab.py:402
+#, python-brace-format
+msgid "Already pinned: {name}"
+msgstr "Deja fixată: {name}"
+
+#: ui/tabs/docklike_tab.py:406
+#, python-brace-format
+msgid "Added: {name}. Click 'Save & Apply' to confirm."
+msgstr "Adăugată: {name}. Fă clic pe „Salvează și aplică” pentru a confirma."
+
+#: ui/tabs/docklike_tab.py:413
+msgid "Saved and applied"
+msgstr "Salvat și aplicat"
+
+#: ui/tabs/docklike_tab.py:415
+msgid "Error saving configuration"
+msgstr "Eroare la salvarea configurației"
+
+#: ui/tabs/gtk_themes_tab.py:83 ui/tabs/icons_cursors_tab.py:101
+msgid "Activate"
+msgstr "Activează"
+
+#: ui/tabs/gtk_themes_tab.py:92 ui/tabs/icons_cursors_tab.py:110
+msgid "Install package…"
+msgstr "Instalează pachet…"
+
+#: ui/tabs/gtk_themes_tab.py:97
+msgid ""
+"Some themes also ship matching window-border colors — those are applied "
+"automatically together."
+msgstr ""
+"Unele teme includ și culori asortate pentru marginea ferestrelor — acestea "
+"se aplică automat împreună."
+
+#: ui/tabs/gtk_themes_tab.py:111
+msgid "Reading installed GTK themes…"
+msgstr "Se citesc temele GTK instalate…"
+
+#: ui/tabs/gtk_themes_tab.py:133 ui/tabs/icons_cursors_tab.py:254
+#, python-brace-format
+msgid "{n} installed — active: {active}"
+msgstr "{n} instalate — activă: {active}"
+
+#: ui/tabs/gtk_themes_tab.py:133 ui/tabs/icons_cursors_tab.py:255
+msgid "none"
+msgstr "niciuna"
+
+#: ui/tabs/gtk_themes_tab.py:160 ui/tabs/icons_cursors_tab.py:286
+msgid "Currently active"
+msgstr "Activă în prezent"
+
+#: ui/tabs/gtk_themes_tab.py:172 ui/tabs/icons_cursors_tab.py:299
+msgid "Activating…"
+msgstr "Se activează…"
+
+#: ui/tabs/gtk_themes_tab.py:183 ui/tabs/icons_cursors_tab.py:313
+msgid "Error activating theme."
+msgstr "Eroare la activarea temei."
+
+#: ui/tabs/gtk_themes_tab.py:198 ui/tabs/icons_cursors_tab.py:322
+msgid "Select a package to install"
+msgstr "Selectează un pachet de instalat"
+
+#: ui/tabs/gtk_themes_tab.py:208
+msgid "GTK theme packages (.tar.gz, .tar.xz, .zip…)"
+msgstr "Pachete de teme GTK (.tar.gz, .tar.xz, .zip…)"
+
+#: ui/tabs/gtk_themes_tab.py:219 ui/tabs/icons_cursors_tab.py:343
+msgid "Reading package…"
+msgstr "Se citește pachetul…"
+
+#: ui/tabs/gtk_themes_tab.py:233
+msgid ""
+"No installable GTK theme was found in this package.\n"
+"\n"
+"Some packages only ship source files and need their own install script to be "
+"built, which Theme Manager does not run for safety reasons — install those "
+"manually."
+msgstr ""
+"Nu s-a găsit nicio temă GTK instalabilă în acest pachet.\n"
+"\n"
+"Unele pachete conțin doar fișiere sursă și necesită propriul script de "
+"instalare pentru compilare, lucru pe care Theme Manager nu îl execută din "
+"motive de securitate — instalează-le manual."
+
+#: ui/tabs/gtk_themes_tab.py:250 ui/tabs/icons_cursors_tab.py:374
+msgid "Installing…"
+msgstr "Se instalează…"
+
+#: ui/tabs/gtk_themes_tab.py:261 ui/tabs/icons_cursors_tab.py:385
+msgid "Themes found in this package"
+msgstr "Teme găsite în acest pachet"
+
+#: ui/tabs/gtk_themes_tab.py:266 ui/tabs/gtk_themes_tab.py:304
+#: ui/tabs/icons_cursors_tab.py:390 ui/tabs/icons_cursors_tab.py:428
+#: ui/tabs/themes_tab.py:379
+msgid "Cancel"
+msgstr "Anulează"
+
+#: ui/tabs/gtk_themes_tab.py:267 ui/tabs/icons_cursors_tab.py:391
+msgid "Install selected"
+msgstr "Instalează selecția"
+
+#: ui/tabs/gtk_themes_tab.py:278 ui/tabs/icons_cursors_tab.py:402
+#, python-brace-format
+msgid "This package contains {n} theme(s). Choose which to install:"
+msgstr "Acest pachet conține {n} temă/teme. Alege ce să instalezi:"
+
+#: ui/tabs/gtk_themes_tab.py:285
+msgid " (includes window border)"
+msgstr " (include marginea ferestrei)"
+
+#: ui/tabs/gtk_themes_tab.py:299 ui/tabs/icons_cursors_tab.py:423
+#: ui/tabs/themes_tab.py:374
+msgid "Installation scope"
+msgstr "Domeniul instalării"
+
+#: ui/tabs/gtk_themes_tab.py:305 ui/tabs/icons_cursors_tab.py:429
+#: ui/tabs/themes_tab.py:380
+msgid "Current user"
+msgstr "Utilizatorul curent"
+
+#: ui/tabs/gtk_themes_tab.py:306 ui/tabs/icons_cursors_tab.py:430
+#: ui/tabs/themes_tab.py:381
+msgid "Global (recommended)"
+msgstr "Global (recomandat)"
+
+#: ui/tabs/gtk_themes_tab.py:317 ui/tabs/icons_cursors_tab.py:441
+msgid "Where should the theme(s) be installed?"
+msgstr "Unde ar trebui instalate temele?"
+
+#: ui/tabs/gtk_themes_tab.py:335 ui/tabs/icons_cursors_tab.py:459
+#, python-brace-format
+msgid "Installed. These were already present and left untouched: {names}"
+msgstr "Instalat. Acestea erau deja prezente și nu au fost modificate: {names}"
+
+#: ui/tabs/gtk_themes_tab.py:340 ui/tabs/icons_cursors_tab.py:464
+msgid "Error installing the package."
+msgstr "Eroare la instalarea pachetului."
+
+#: ui/tabs/icons_cursors_tab.py:49
+msgid "Icon Themes"
+msgstr "Teme de pictograme"
+
+#: ui/tabs/icons_cursors_tab.py:53
+msgid "Cursor Themes"
+msgstr "Teme de cursor"
+
+#: ui/tabs/icons_cursors_tab.py:126
+msgid "Reading installed themes…"
+msgstr "Se citesc temele instalate…"
+
+#: ui/tabs/icons_cursors_tab.py:332
+msgid "Icon/cursor packages (.tar.gz, .tar.xz, .zip…)"
+msgstr "Pachete de pictograme/cursoare (.tar.gz, .tar.xz, .zip…)"
+
+#: ui/tabs/icons_cursors_tab.py:357
+msgid ""
+"No installable icon or cursor theme was found in this package.\n"
+"\n"
+"Some packages only ship source files and need their own install script to be "
+"built, which Theme Manager does not run for safety reasons — install those "
+"manually."
+msgstr ""
+"Nu s-a găsit nicio temă de pictograme sau cursor instalabilă în acest "
+"pachet.\n"
+"\n"
+"Unele pachete conțin doar fișiere sursă și necesită propriul script de "
+"instalare pentru compilare, lucru pe care Theme Manager nu îl execută din "
+"motive de securitate — instalează-le manual."
+
+#: ui/tabs/icons_cursors_tab.py:409
+msgid "Icon theme"
+msgstr "Temă de pictograme"
+
+#: ui/tabs/icons_cursors_tab.py:409
+msgid "Cursor theme"
+msgstr "Temă de cursor"
+
+#: ui/tabs/lightdm_tab.py:109
+msgid "Login Screen (LightDM)"
+msgstr "Ecran de autentificare (LightDM)"
+
+#: ui/tabs/lightdm_tab.py:116
+msgid "These settings only affect the login screen, not your desktop session."
+msgstr "Aceste setări afectează doar ecranul de autentificare, nu sesiunea ta desktop."
+
+#: ui/tabs/lightdm_tab.py:143
+msgid "Change background…"
+msgstr "Schimbă fundalul…"
+
+#: ui/tabs/lightdm_tab.py:158
+msgid "Change user image…"
+msgstr "Schimbă imaginea utilizatorului…"
+
+#: ui/tabs/lightdm_tab.py:178
+msgid "GTK theme:"
+msgstr "Temă GTK:"
+
+#: ui/tabs/lightdm_tab.py:181
+msgid "Icon theme:"
+msgstr "Temă de pictograme:"
+
+#: ui/tabs/lightdm_tab.py:184
+msgid "Cursor theme:"
+msgstr "Temă de cursor:"
+
+#: ui/tabs/lightdm_tab.py:187
+msgid "Font:"
+msgstr "Font:"
+
+#: ui/tabs/lightdm_tab.py:202
+msgid "Login Box Position"
+msgstr "Poziția casetei de autentificare"
+
+#: ui/tabs/lightdm_tab.py:274
+msgid "Horizontal offset (%):"
+msgstr "Decalaj orizontal (%):"
+
+#: ui/tabs/lightdm_tab.py:278
+msgid "Vertical offset (%):"
+msgstr "Decalaj vertical (%):"
+
+#: ui/tabs/lightdm_tab.py:281
+msgid "Show user avatar:"
+msgstr "Afișează avatarul utilizatorului:"
+
+#: ui/tabs/lightdm_tab.py:284
+msgid "Use each user's own wallpaper:"
+msgstr "Folosește fundalul propriu al fiecărui utilizator:"
+
+#: ui/tabs/lightdm_tab.py:288
+msgid "Clock format:"
+msgstr "Format ceas:"
+
+#: ui/tabs/lightdm_tab.py:319
+msgid "Reading login screen settings…"
+msgstr "Se citesc setările ecranului de autentificare…"
+
+#: ui/tabs/lightdm_tab.py:450
+msgid "Select background image"
+msgstr "Selectează imaginea de fundal"
+
+#: ui/tabs/lightdm_tab.py:456
+msgid "Select user image"
+msgstr "Selectează imaginea utilizatorului"
+
+#: ui/tabs/lightdm_tab.py:470 ui/tabs/wallpapers_tab.py:259
+msgid "Images"
+msgstr "Imagini"
+
+#: ui/tabs/lightdm_tab.py:502
+msgid "Applying login screen settings…"
+msgstr "Se aplică setările ecranului de autentificare…"
+
+#: ui/tabs/lightdm_tab.py:513
+msgid "Saved"
+msgstr "Salvat"
+
+#: ui/tabs/lightdm_tab.py:513
+msgid "Error saving login screen settings"
+msgstr "Eroare la salvarea setărilor ecranului de autentificare"
+
+#: ui/tabs/panel_tab.py:363
+msgid "Add new panel"
+msgstr "Adaugă panou nou"
+
+#: ui/tabs/panel_tab.py:369
+msgid "Delete this panel"
+msgstr "Șterge acest panou"
+
+#: ui/tabs/panel_tab.py:436
+msgid "Position"
+msgstr "Poziție"
+
+#: ui/tabs/panel_tab.py:436
+msgid "where the panel lives"
+msgstr "unde se află panoul"
+
+#: ui/tabs/panel_tab.py:439
+msgid "Top"
+msgstr "Sus"
+
+#: ui/tabs/panel_tab.py:439
+msgid "Bottom"
+msgstr "Jos"
+
+#: ui/tabs/panel_tab.py:439 ui/tabs/panel_tab.py:446
+msgid "Left"
+msgstr "Stânga"
+
+#: ui/tabs/panel_tab.py:439 ui/tabs/panel_tab.py:446
+msgid "Right"
+msgstr "Dreapta"
+
+#: ui/tabs/panel_tab.py:443
+msgid "Position:"
+msgstr "Poziție:"
+
+#: ui/tabs/panel_tab.py:446
+msgid "Center"
+msgstr "Centru"
+
+#: ui/tabs/panel_tab.py:450
+msgid "Alignment:"
+msgstr "Aliniere:"
+
+#: ui/tabs/panel_tab.py:455
+msgid "Length (%):"
+msgstr "Lungime (%):"
+
+#: ui/tabs/panel_tab.py:461
+msgid "Lock position:"
+msgstr "Blochează poziția:"
+
+#: ui/tabs/panel_tab.py:464
+msgid "Appearance"
+msgstr "Aspect"
+
+#: ui/tabs/panel_tab.py:464
+msgid "size and style"
+msgstr "dimensiune și stil"
+
+#: ui/tabs/panel_tab.py:467
+msgid "Horizontal"
+msgstr "Orizontal"
+
+#: ui/tabs/panel_tab.py:467
+msgid "Vertical"
+msgstr "Vertical"
+
+#: ui/tabs/panel_tab.py:467
+msgid "Deskbar"
+msgstr "Deskbar"
+
+#: ui/tabs/panel_tab.py:470
+msgid "Mode:"
+msgstr "Mod:"
+
+#: ui/tabs/panel_tab.py:474
+msgid "Height (px):"
+msgstr "Înălțime (px):"
+
+#: ui/tabs/panel_tab.py:478
+msgid "Icon size (px):"
+msgstr "Dimensiune pictograme (px):"
+
+#: ui/tabs/panel_tab.py:482
+msgid "Rows:"
+msgstr "Rânduri:"
+
+#: ui/tabs/panel_tab.py:488
+msgid "Dark mode:"
+msgstr "Mod întunecat:"
+
+#: ui/tabs/panel_tab.py:491
+msgid "Behavior"
+msgstr "Comportament"
+
+#: ui/tabs/panel_tab.py:491
+msgid "when it hides"
+msgstr "când se ascunde"
+
+#: ui/tabs/panel_tab.py:494
+msgid "Never"
+msgstr "Niciodată"
+
+#: ui/tabs/panel_tab.py:494
+msgid "Intelligent"
+msgstr "Inteligent"
+
+#: ui/tabs/panel_tab.py:494
+msgid "Always"
+msgstr "Întotdeauna"
+
+#: ui/tabs/panel_tab.py:497
+msgid "Auto-hide:"
+msgstr "Ascundere automată:"
+
+#: ui/tabs/panel_tab.py:503
+msgid "Auto-expand:"
+msgstr "Extindere automată:"
+
+#: ui/tabs/panel_tab.py:541
+msgid "Panel Plugins"
+msgstr "Module de panou"
+
+#: ui/tabs/panel_tab.py:561
+msgid "Active (drag to reorder)"
+msgstr "Active (trage pentru a reordona)"
+
+#: ui/tabs/panel_tab.py:603
+msgid "Settings"
+msgstr "Setări"
+
+#: ui/tabs/panel_tab.py:623
+msgid "Available"
+msgstr "Disponibile"
+
+#: ui/tabs/panel_tab.py:627
+msgid "double-click to add"
+msgstr "dublu clic pentru a adăuga"
+
+#: ui/tabs/panel_tab.py:634
+msgid "Search plugins…"
+msgstr "Caută module…"
+
+#: ui/tabs/panel_tab.py:684
+msgid "Add to Panel"
+msgstr "Adaugă la panou"
+
+#: ui/tabs/panel_tab.py:696 ui/tabs/panel_tab.py:751
+msgid "Reading panel settings…"
+msgstr "Se citesc setările panoului…"
+
+#: ui/tabs/panel_tab.py:738
+#, python-brace-format
+msgid "Panel {n}"
+msgstr "Panoul {n}"
+
+#: ui/tabs/panel_tab.py:763
+msgid "start"
+msgstr "început"
+
+#: ui/tabs/panel_tab.py:763
+msgid "center"
+msgstr "centru"
+
+#: ui/tabs/panel_tab.py:763
+msgid "end"
+msgstr "sfârșit"
+
+#: ui/tabs/panel_tab.py:766
+msgid "top"
+msgstr "sus"
+
+#: ui/tabs/panel_tab.py:767
+msgid "bottom"
+msgstr "jos"
+
+#: ui/tabs/panel_tab.py:768
+msgid "left"
+msgstr "stânga"
+
+#: ui/tabs/panel_tab.py:769
+msgid "right"
+msgstr "dreapta"
+
+#: ui/tabs/panel_tab.py:773
+#, python-brace-format
+msgid "Full width on the <b>{edge}</b> edge."
+msgstr "Lățime completă pe marginea <b>{edge}</b>."
+
+#: ui/tabs/panel_tab.py:777
+#, python-brace-format
+msgid "{length}% wide, {align}-aligned on the <b>{edge}</b> edge."
+msgstr "Lățime {length}%, aliniat la {align} pe marginea <b>{edge}</b>."
+
+#: ui/tabs/panel_tab.py:1110
+msgid "Applying panel settings…"
+msgstr "Se aplică setările panoului…"
+
+#: ui/tabs/panel_tab.py:1150
+msgid "Adding panel…"
+msgstr "Se adaugă panoul…"
+
+#: ui/tabs/panel_tab.py:1194
+#, python-brace-format
+msgid "Delete {pk}?"
+msgstr "Ștergi {pk}?"
+
+#: ui/tabs/panel_tab.py:1196
+msgid "This will remove the panel and all its plugins."
+msgstr "Aceasta va elimina panoul și toate modulele sale."
+
+#: ui/tabs/panel_tab.py:1204
+msgid "Deleting panel…"
+msgstr "Se șterge panoul…"
+
+#: ui/tabs/panel_tab.py:1248
+msgid "Some settings could not be applied."
+msgstr "Unele setări nu au putut fi aplicate."
+
+#: ui/tabs/themes_tab.py:130
+msgid "Apply"
+msgstr "Aplică"
+
+#: ui/tabs/themes_tab.py:131
+msgid "New"
+msgstr "Nouă"
+
+#: ui/tabs/themes_tab.py:139
+msgid "Export ↑"
+msgstr "Exportă ↑"
+
+#: ui/tabs/themes_tab.py:140
+msgid "Install ↓"
+msgstr "Instalează ↓"
+
+#: ui/tabs/themes_tab.py:142
+msgid "Restore"
+msgstr "Restaurează"
+
+#: ui/tabs/themes_tab.py:146
+msgid "Loading themes…"
+msgstr "Se încarcă temele…"
+
+#: ui/tabs/themes_tab.py:161
+#, python-brace-format
+msgid "{n} themes available"
+msgstr "{n} teme disponibile"
+
+#: ui/tabs/themes_tab.py:172 ui/tabs/themes_tab.py:267
+#: ui/tabs/themes_tab.py:295
+msgid "Select a theme first"
+msgstr "Selectează mai întâi o temă"
+
+#: ui/tabs/themes_tab.py:176
+#, python-brace-format
+msgid "Applying {name}…"
+msgstr "Se aplică {name}…"
+
+#: ui/tabs/themes_tab.py:188
+#, python-brace-format
+msgid "Applied: {name}"
+msgstr "Aplicată: {name}"
+
+#: ui/tabs/themes_tab.py:195
+msgid "Error applying theme"
+msgstr "Eroare la aplicarea temei"
+
+#: ui/tabs/themes_tab.py:199
+msgid "Save Current Theme"
+msgstr "Salvează tema curentă"
+
+#: ui/tabs/themes_tab.py:217
+msgid "Theme name:"
+msgstr "Nume temă:"
+
+#: ui/tabs/themes_tab.py:219
+msgid "My Theme"
+msgstr "Tema mea"
+
+#: ui/tabs/themes_tab.py:222
+msgid "Take screenshot for preview"
+msgstr "Fă o captură pentru previzualizare"
+
+#: ui/tabs/themes_tab.py:235
+msgid "Saving theme…"
+msgstr "Se salvează tema…"
+
+#: ui/tabs/themes_tab.py:249
+msgid "Taking screenshot…"
+msgstr "Se face captura de ecran…"
+
+#: ui/tabs/themes_tab.py:263
+msgid "Error saving theme"
+msgstr "Eroare la salvarea temei"
+
+#: ui/tabs/themes_tab.py:276
+msgid "Remove theme?"
+msgstr "Elimini tema?"
+
+#: ui/tabs/themes_tab.py:279
+#, python-brace-format
+msgid "'{name}' will be permanently deleted."
+msgstr "„{name}” va fi ștearsă definitiv."
+
+#: ui/tabs/themes_tab.py:291
+msgid "Error removing theme"
+msgstr "Eroare la eliminarea temei"
+
+#: ui/tabs/themes_tab.py:300
+msgid "Export Theme"
+msgstr "Exportă tema"
+
+#: ui/tabs/themes_tab.py:312 ui/tabs/themes_tab.py:344
+msgid "Soplos Theme Bundle (*.sth)"
+msgstr "Pachet de temă Soplos (*.sth)"
+
+#: ui/tabs/themes_tab.py:319
+#, python-brace-format
+msgid "Exporting {name}…"
+msgstr "Se exportă {name}…"
+
+#: ui/tabs/themes_tab.py:328
+#, python-brace-format
+msgid "Export error: {e}"
+msgstr "Eroare de export: {e}"
+
+#: ui/tabs/themes_tab.py:335
+msgid "Install Theme"
+msgstr "Instalează tema"
+
+#: ui/tabs/themes_tab.py:364
+msgid "Installing theme…"
+msgstr "Se instalează tema…"
+
+#: ui/tabs/themes_tab.py:392
+msgid "Where should the theme assets be installed?"
+msgstr "Unde ar trebui instalate resursele temei?"
+
+#: ui/tabs/themes_tab.py:409
+#, python-brace-format
+msgid "Install error: {e}"
+msgstr "Eroare de instalare: {e}"
+
+#: ui/tabs/themes_tab.py:418 ui/tabs/themes_tab.py:423
+msgid "No base themes found."
+msgstr "Nu s-au găsit teme de bază."
+
+#: ui/tabs/themes_tab.py:426
+msgid "Restoring base themes…"
+msgstr "Se restaurează temele de bază…"
+
+#: ui/tabs/themes_tab.py:456
+msgid "All base themes are already present."
+msgstr "Toate temele de bază sunt deja prezente."
+
+#: ui/tabs/wallpapers_tab.py:95
+msgid "Folder:"
+msgstr "Folder:"
+
+#: ui/tabs/wallpapers_tab.py:98
+msgid "Select wallpaper folder"
+msgstr "Selectează folderul cu fundaluri"
+
+#: ui/tabs/wallpapers_tab.py:138
+msgid "Set Wallpaper"
+msgstr "Setează fundal"
+
+#: ui/tabs/wallpapers_tab.py:147
+msgid "Install Wallpaper"
+msgstr "Instalează fundal"
+
+#: ui/tabs/wallpapers_tab.py:168
+msgid "Scanning wallpapers…"
+msgstr "Se caută fundaluri…"
+
+#: ui/tabs/wallpapers_tab.py:217
+#, python-brace-format
+msgid "{n} wallpapers found"
+msgstr "{n} fundaluri găsite"
+
+#: ui/tabs/wallpapers_tab.py:231
+msgid "Select a wallpaper first"
+msgstr "Selectează mai întâi un fundal"
+
+#: ui/tabs/wallpapers_tab.py:234
+msgid "Applying wallpaper…"
+msgstr "Se aplică fundalul…"
+
+#: ui/tabs/wallpapers_tab.py:242
+msgid "Wallpaper applied"
+msgstr "Fundal aplicat"
+
+#: ui/tabs/wallpapers_tab.py:242
+msgid "Error applying wallpaper"
+msgstr "Eroare la aplicarea fundalului"
+
+#: ui/tabs/wallpapers_tab.py:248
+msgid "Select wallpapers to install"
+msgstr "Selectează fundaluri de instalat"
+
+#: ui/tabs/wallpapers_tab.py:270
+msgid "Installing wallpapers…"
+msgstr "Se instalează fundalurile…"
+
+#: ui/tabs/wallpapers_tab.py:281
+msgid "Wallpapers installed"
+msgstr "Fundaluri instalate"
+
+#: ui/tabs/wallpapers_tab.py:285
+#, python-brace-format
+msgid "Error installing wallpapers: {e}"
+msgstr "Eroare la instalarea fundalurilor: {e}"

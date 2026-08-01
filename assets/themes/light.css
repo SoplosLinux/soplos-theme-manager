@@ -319,6 +319,20 @@ scrolledwindow viewport {
     color: #000000;
 }
 
+.soplos-content {
+    background-color: @soplos_light_bg;
+    border-radius: 8px;
+    margin: 8px;
+}
+
+scrolledwindow.soplos-content viewport {
+    background-color: @soplos_light_bg;
+}
+
+flowboxchild:selected {
+    background-color: transparent;
+}
+
 * {
     outline-color: alpha(@soplos_orange, 0.5);
     outline-style: none;

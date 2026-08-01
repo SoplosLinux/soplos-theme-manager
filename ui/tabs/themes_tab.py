@@ -186,6 +186,11 @@ class ThemesTab(Gtk.Box):
             self.parent_window.hide_progress()
             if hasattr(self.parent_window, 'set_status'):
                 self.parent_window.set_status(_("Applied: {name}").format(name=name))
+            # A full theme bundle sets the GTK theme too — update this app's
+            # own dark/light look immediately instead of only on next launch.
+            app = getattr(self.parent_window, 'application', None)
+            if app is not None and hasattr(app, 'reapply_css'):
+                app.reapply_css()
         else:
             self.parent_window.show_progress(_("Error applying theme"), fraction=0.0)
 
@@ -346,7 +351,12 @@ class ThemesTab(Gtk.Box):
 
         bundle_path = dialog.get_filename()
         dialog.destroy()
+        self.install_bundle_path(bundle_path)
 
+    def install_bundle_path(self, bundle_path: str):
+        """Install a .sth bundle whose path is already known — shared by the
+        Install file-chooser button and by opening a .sth from a file
+        manager (core/application.py's do_open)."""
         scope = self._ask_install_scope()
         if scope is None:
             return

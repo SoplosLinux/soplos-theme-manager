@@ -29,6 +29,13 @@ scrolledwindow {
     font-size: 14px;
 }
 
+/* Docklike live preview — mimics the rounded floating dock bar look */
+.docklike-preview-bar {
+    background-color: alpha(@theme_fg_color, 0.06);
+    border: 1px solid alpha(@theme_fg_color, 0.14);
+    border-radius: 16px;
+}
+
 /* HeaderBar button reset — prevents global button{} rule from
    affecting CSD window controls (close/minimize/maximize) on GNOME */
 headerbar button {

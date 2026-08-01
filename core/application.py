@@ -17,10 +17,15 @@ class ThemeManagerApp(Gtk.Application):
     def __init__(self):
         super().__init__(
             application_id=APPLICATION_ID,
-            flags=Gio.ApplicationFlags.FLAGS_NONE
+            # HANDLES_OPEN: lets a .sth opened from a file manager route to
+            # do_open() below, in this same already-running instance if one
+            # exists (single-instance GApplication activation over D-Bus).
+            flags=Gio.ApplicationFlags.HANDLES_OPEN
         )
         self.config = None
         self.main_window = None
+        self._base_css_provider = None
+        self._theme_css_provider = None
 
         self.connect('startup', self.on_startup)
         self.connect('activate', self.on_activate)
@@ -106,27 +111,64 @@ class ThemeManagerApp(Gtk.Application):
             except Exception as e:
                 logger.warning(f"Error seeding base theme {sth.name}: {e}")
 
+    def _detect_xfce_dark(self) -> bool:
+        """True if the system's active GTK theme looks dark.
+
+        Same heuristic already used elsewhere in the Soplos ecosystem
+        (soplos-welcome's core/environment.py, and this app's own
+        xfce_theme_service._write_gtk_prefer_dark): XFCE has no single
+        'is dark' flag, so the active theme *name* containing 'dark' is
+        the established proxy. Good enough for the themes this app itself
+        ships and lists (Adwaita-dark, Orchis-*-Dark, etc.).
+        """
+        try:
+            import subprocess
+            result = subprocess.run(
+                ['xfconf-query', '-c', 'xsettings', '-p', '/Net/ThemeName'],
+                capture_output=True, text=True, timeout=5,
+            )
+            if result.returncode == 0:
+                return 'dark' in result.stdout.lower()
+        except Exception:
+            pass
+        return True  # keep the historical default (dark) if detection fails
+
     def _apply_css(self):
         themes_dir = Path(__file__).parent.parent / "assets" / "themes"
 
-        base_css = themes_dir / "base.css"
-        if base_css.exists():
-            try:
-                provider = Gtk.CssProvider()
-                provider.load_from_path(str(base_css))
-                Gtk.StyleContext.add_provider_for_screen(
-                    Gdk.Screen.get_default(),
-                    provider,
-                    Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-                )
-            except Exception as e:
-                logger.error(f"Error loading base.css: {e}")
+        if self._base_css_provider is None:
+            base_css = themes_dir / "base.css"
+            if base_css.exists():
+                try:
+                    provider = Gtk.CssProvider()
+                    provider.load_from_path(str(base_css))
+                    Gtk.StyleContext.add_provider_for_screen(
+                        Gdk.Screen.get_default(),
+                        provider,
+                        Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+                    )
+                    self._base_css_provider = provider
+                except Exception as e:
+                    logger.error(f"Error loading base.css: {e}")
 
-        # En Tyron (XFCE) siempre dark.css por defecto; respetar preferencia guardada
-        theme_name = self.config.get('css_theme', 'dark') if self.config else 'dark'
+        # Explicit user choice (once the app exposes one) wins; otherwise
+        # follow the system's actual active GTK theme instead of always
+        # defaulting to dark regardless of what's really active.
+        saved_choice = self.config.get('css_theme') if self.config else None
+        if saved_choice in ('dark', 'light'):
+            theme_name = saved_choice
+        else:
+            theme_name = 'dark' if self._detect_xfce_dark() else 'light'
+
         theme_path = themes_dir / f"{theme_name}.css"
         if not theme_path.exists():
             theme_path = themes_dir / "dark.css"
+
+        if self._theme_css_provider is not None:
+            Gtk.StyleContext.remove_provider_for_screen(
+                Gdk.Screen.get_default(), self._theme_css_provider
+            )
+            self._theme_css_provider = None
 
         if theme_path.exists():
             try:
@@ -137,23 +179,50 @@ class ThemeManagerApp(Gtk.Application):
                     provider,
                     Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
                 )
+                self._theme_css_provider = provider
             except Exception as e:
                 logger.error(f"Error loading {theme_path.name}: {e}")
 
+    def reapply_css(self):
+        """Re-detect the active system theme and swap dark.css/light.css live.
+
+        Called after this app itself changes the active GTK theme (from the
+        GTK Themes tab) so the app's own look updates immediately instead of
+        only on next launch.
+        """
+        self._apply_css()
+
     def on_activate(self, app):
         try:
-            if not self.main_window:
-                from ui.main_window import ThemeManagerWindow
-                self.main_window = ThemeManagerWindow(
-                    application=self,
-                    config=self.config
-                )
+            self._ensure_window()
             self.main_window.present()
             import threading
             threading.Thread(target=self._seed_base_themes, daemon=True).start()
         except Exception as e:
             logger.critical(f"Error activating application: {e}", exc_info=True)
             self.quit()
+
+    def _ensure_window(self):
+        if not self.main_window:
+            from ui.main_window import ThemeManagerWindow
+            self.main_window = ThemeManagerWindow(
+                application=self,
+                config=self.config
+            )
+
+    def do_open(self, files, n_files, hint):
+        """Invoked when a .sth is opened from a file manager (MimeType= in
+        the .desktop + Exec=... %f). Routes to the already-running instance
+        if there is one, since this app is a single-instance GApplication."""
+        try:
+            self._ensure_window()
+            if n_files > 0:
+                path = files[0].get_path()
+                if path:
+                    self.main_window.open_theme_bundle(path)
+            self.main_window.present()
+        except Exception as e:
+            logger.error(f"Error opening file: {e}", exc_info=True)
 
     def on_shutdown(self, app):
         logger.info("Shutting down Soplos Theme Manager")

@@ -24,14 +24,14 @@
   <summary xml:lang="ro">Manager de teme desktop pentru Soplos Linux Tyron (XFCE)</summary>
 
   <description>
-    <p>A complete graphical tool to manage XFCE desktop themes in Soplos Linux Tyron. Apply, create, export and import full desktop themes including panel configuration, wallpaper, window decorations and GTK appearance. Also includes a wallpaper browser, avatar manager and panel dock configurator.</p>
-    <p xml:lang="es">Una herramienta gráfica completa para gestionar temas de escritorio XFCE en Soplos Linux Tyron. Aplica, crea, exporta e importa temas de escritorio completos incluyendo configuración del panel, fondo de pantalla, decoraciones de ventana y apariencia GTK. También incluye un navegador de fondos de pantalla, gestor de avatar y configurador del panel dock.</p>
-    <p xml:lang="fr">Un outil graphique complet pour gérer les thèmes de bureau XFCE dans Soplos Linux Tyron. Appliquez, créez, exportez et importez des thèmes de bureau complets incluant la configuration du panneau, le fond d'écran, les décorations de fenêtres et l'apparence GTK. Comprend également un navigateur de fonds d'écran, un gestionnaire d'avatar et un configurateur de panneau dock.</p>
-    <p xml:lang="pt">Uma ferramenta gráfica completa para gerenciar temas de área de trabalho XFCE no Soplos Linux Tyron. Aplique, crie, exporte e importe temas de área de trabalho completos incluindo configuração do painel, papel de parede, decorações de janela e aparência GTK. Também inclui um navegador de papéis de parede, gerenciador de avatar e configurador de painel dock.</p>
-    <p xml:lang="de">Ein vollständiges grafisches Werkzeug zur Verwaltung von XFCE-Desktop-Themes in Soplos Linux Tyron. Wenden Sie vollständige Desktop-Themes an, erstellen, exportieren und importieren Sie sie, einschließlich Panel-Konfiguration, Hintergrundbild, Fensterdekoration und GTK-Erscheinungsbild. Enthält auch einen Hintergrundbild-Browser, Avatar-Manager und Panel-Dock-Konfigurator.</p>
-    <p xml:lang="it">Uno strumento grafico completo per gestire i temi del desktop XFCE in Soplos Linux Tyron. Applica, crea, esporta e importa temi desktop completi inclusi configurazione del pannello, sfondo, decorazioni delle finestre e aspetto GTK. Include anche un browser di sfondi, un gestore di avatar e un configuratore del pannello dock.</p>
-    <p xml:lang="ru">Полный графический инструмент для управления темами рабочего стола XFCE в Soplos Linux Tyron. Применяйте, создавайте, экспортируйте и импортируйте полные темы рабочего стола, включая настройку панели, обои, оформление окон и внешний вид GTK. Также включает браузер обоев, менеджер аватаров и конфигуратор панели dock.</p>
-    <p xml:lang="ro">Un instrument grafic complet pentru gestionarea temelor desktop XFCE în Soplos Linux Tyron. Aplicați, creați, exportați și importați teme desktop complete, inclusiv configurarea panoului, fundalul, decorațiunile ferestrelor și aspectul GTK. Include, de asemenea, un browser de fundaluri, un manager de avatar și un configurator de panou dock.</p>
+    <p>A complete graphical tool to manage XFCE desktop themes in Soplos Linux Tyron. Apply, create, export and import full desktop themes including panel configuration, wallpaper, window decorations and GTK appearance. Also includes a wallpaper browser and panel dock configurator.</p>
+    <p xml:lang="es">Una herramienta gráfica completa para gestionar temas de escritorio XFCE en Soplos Linux Tyron. Aplica, crea, exporta e importa temas de escritorio completos incluyendo configuración del panel, fondo de pantalla, decoraciones de ventana y apariencia GTK. También incluye un navegador de fondos de pantalla y configurador del panel dock.</p>
+    <p xml:lang="fr">Un outil graphique complet pour gérer les thèmes de bureau XFCE dans Soplos Linux Tyron. Appliquez, créez, exportez et importez des thèmes de bureau complets incluant la configuration du panneau, le fond d'écran, les décorations de fenêtres et l'apparence GTK. Comprend également un navigateur de fonds d'écran et un configurateur de panneau dock.</p>
+    <p xml:lang="pt">Uma ferramenta gráfica completa para gerenciar temas de área de trabalho XFCE no Soplos Linux Tyron. Aplique, crie, exporte e importe temas de área de trabalho completos incluindo configuração do painel, papel de parede, decorações de janela e aparência GTK. Também inclui um navegador de papéis de parede e configurador de painel dock.</p>
+    <p xml:lang="de">Ein vollständiges grafisches Werkzeug zur Verwaltung von XFCE-Desktop-Themes in Soplos Linux Tyron. Wenden Sie vollständige Desktop-Themes an, erstellen, exportieren und importieren Sie sie, einschließlich Panel-Konfiguration, Hintergrundbild, Fensterdekoration und GTK-Erscheinungsbild. Enthält auch einen Hintergrundbild-Browser und Panel-Dock-Konfigurator.</p>
+    <p xml:lang="it">Uno strumento grafico completo per gestire i temi del desktop XFCE in Soplos Linux Tyron. Applica, crea, esporta e importa temi desktop completi inclusi configurazione del pannello, sfondo, decorazioni delle finestre e aspetto GTK. Include anche un browser di sfondi e un configuratore del pannello dock.</p>
+    <p xml:lang="ru">Полный графический инструмент для управления темами рабочего стола XFCE в Soplos Linux Tyron. Применяйте, создавайте, экспортируйте и импортируйте полные темы рабочего стола, включая настройку панели, обои, оформление окон и внешний вид GTK. Также включает браузер обоев и конфигуратор панели dock.</p>
+    <p xml:lang="ro">Un instrument grafic complet pentru gestionarea temelor desktop XFCE în Soplos Linux Tyron. Aplicați, creați, exportați și importați teme desktop complete, inclusiv configurarea panoului, fundalul, decorațiunile ferestrelor și aspectul GTK. Include, de asemenea, un browser de fundaluri și un configurator de panou dock.</p>
   </description>
 
   <categories>
@@ -129,26 +129,48 @@
       <image>https://raw.githubusercontent.com/SoplosLinux/tyron/main/media/soplos-theme-manager/screenshots/screenshot2.png</image>
     </screenshot>
     <screenshot>
-      <caption>Avatar and user data manager</caption>
-      <caption xml:lang="es">Gestor de avatar y datos de usuario</caption>
-      <caption xml:lang="fr">Gestionnaire d'avatar et données utilisateur</caption>
-      <caption xml:lang="pt">Gerenciador de avatar e dados do usuário</caption>
-      <caption xml:lang="de">Avatar- und Benutzerdaten-Manager</caption>
-      <caption xml:lang="it">Gestore avatar e dati utente</caption>
-      <caption xml:lang="ru">Менеджер аватара и данных пользователя</caption>
-      <caption xml:lang="ro">Manager avatar și date utilizator</caption>
+      <caption>GTK theme picker</caption>
+      <caption xml:lang="es">Selector de temas GTK</caption>
+      <caption xml:lang="fr">Sélecteur de thèmes GTK</caption>
+      <caption xml:lang="pt">Seletor de temas GTK</caption>
+      <caption xml:lang="de">GTK-Themenauswahl</caption>
+      <caption xml:lang="it">Selettore dei temi GTK</caption>
+      <caption xml:lang="ru">Выбор темы GTK</caption>
+      <caption xml:lang="ro">Selector de teme GTK</caption>
       <image>https://raw.githubusercontent.com/SoplosLinux/tyron/main/media/soplos-theme-manager/screenshots/screenshot3.png</image>
     </screenshot>
     <screenshot>
-      <caption>Panel configuration and plugin manager</caption>
-      <caption xml:lang="es">Configuración del panel y gestor de plugins</caption>
-      <caption xml:lang="fr">Configuration du panneau et gestionnaire de plugins</caption>
-      <caption xml:lang="pt">Configuração do painel e gestor de plugins</caption>
-      <caption xml:lang="de">Panel-Konfiguration und Plugin-Manager</caption>
-      <caption xml:lang="it">Configurazione pannello e gestore plugin</caption>
-      <caption xml:lang="ru">Настройка панели и менеджер плагинов</caption>
-      <caption xml:lang="ro">Configurare panou și manager de plugin-uri</caption>
+      <caption>Icon and cursor theme picker</caption>
+      <caption xml:lang="es">Selector de temas de iconos y cursores</caption>
+      <caption xml:lang="fr">Sélecteur de thèmes d'icônes et de curseurs</caption>
+      <caption xml:lang="pt">Seletor de temas de ícones e cursores</caption>
+      <caption xml:lang="de">Auswahl für Icon- und Cursor-Themes</caption>
+      <caption xml:lang="it">Selettore dei temi di icone e cursori</caption>
+      <caption xml:lang="ru">Выбор темы значков и курсоров</caption>
+      <caption xml:lang="ro">Selector de teme pentru pictograme și cursoare</caption>
       <image>https://raw.githubusercontent.com/SoplosLinux/tyron/main/media/soplos-theme-manager/screenshots/screenshot4.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Panel configuration: position, appearance and behavior</caption>
+      <caption xml:lang="es">Configuración del panel: posición, apariencia y comportamiento</caption>
+      <caption xml:lang="fr">Configuration du panneau : position, apparence et comportement</caption>
+      <caption xml:lang="pt">Configuração do painel: posição, aparência e comportamento</caption>
+      <caption xml:lang="de">Panel-Konfiguration: Position, Erscheinungsbild und Verhalten</caption>
+      <caption xml:lang="it">Configurazione del pannello: posizione, aspetto e comportamento</caption>
+      <caption xml:lang="ru">Настройка панели: положение, внешний вид и поведение</caption>
+      <caption xml:lang="ro">Configurare panou: poziție, aspect și comportament</caption>
+      <image>https://raw.githubusercontent.com/SoplosLinux/tyron/main/media/soplos-theme-manager/screenshots/screenshot5.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Panel plugin manager</caption>
+      <caption xml:lang="es">Gestor de plugins del panel</caption>
+      <caption xml:lang="fr">Gestionnaire de greffons du panneau</caption>
+      <caption xml:lang="pt">Gestor de plugins do painel</caption>
+      <caption xml:lang="de">Panel-Plugin-Manager</caption>
+      <caption xml:lang="it">Gestore dei plugin del pannello</caption>
+      <caption xml:lang="ru">Менеджер плагинов панели</caption>
+      <caption xml:lang="ro">Manager de plugin-uri pentru panou</caption>
+      <image>https://raw.githubusercontent.com/SoplosLinux/tyron/main/media/soplos-theme-manager/screenshots/screenshot6.png</image>
     </screenshot>
     <screenshot>
       <caption>Dock pinned applications manager</caption>
@@ -159,7 +181,29 @@
       <caption xml:lang="it">Gestore applicazioni bloccate nel dock</caption>
       <caption xml:lang="ru">Менеджер закреплённых приложений дока</caption>
       <caption xml:lang="ro">Manager aplicații fixate în dock</caption>
-      <image>https://raw.githubusercontent.com/SoplosLinux/tyron/main/media/soplos-theme-manager/screenshots/screenshot5.png</image>
+      <image>https://raw.githubusercontent.com/SoplosLinux/tyron/main/media/soplos-theme-manager/screenshots/screenshot7.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Login screen appearance (theme, background, avatar)</caption>
+      <caption xml:lang="es">Apariencia de la pantalla de inicio de sesión (tema, fondo, avatar)</caption>
+      <caption xml:lang="fr">Apparence de l'écran de connexion (thème, fond d'écran, avatar)</caption>
+      <caption xml:lang="pt">Aparência da tela de login (tema, fundo, avatar)</caption>
+      <caption xml:lang="de">Aussehen des Anmeldebildschirms (Theme, Hintergrund, Avatar)</caption>
+      <caption xml:lang="it">Aspetto della schermata di accesso (tema, sfondo, avatar)</caption>
+      <caption xml:lang="ru">Внешний вид экрана входа (тема, фон, аватар)</caption>
+      <caption xml:lang="ro">Aspectul ecranului de conectare (temă, fundal, avatar)</caption>
+      <image>https://raw.githubusercontent.com/SoplosLinux/tyron/main/media/soplos-theme-manager/screenshots/screenshot8.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Login box position picker</caption>
+      <caption xml:lang="es">Selector de posición de la caja de inicio de sesión</caption>
+      <caption xml:lang="fr">Sélecteur de position de la boîte de connexion</caption>
+      <caption xml:lang="pt">Seletor de posição da caixa de login</caption>
+      <caption xml:lang="de">Positionsauswahl für die Anmeldebox</caption>
+      <caption xml:lang="it">Selettore di posizione della finestra di accesso</caption>
+      <caption xml:lang="ru">Выбор положения окна входа</caption>
+      <caption xml:lang="ro">Selector de poziție pentru caseta de conectare</caption>
+      <image>https://raw.githubusercontent.com/SoplosLinux/tyron/main/media/soplos-theme-manager/screenshots/screenshot9.png</image>
     </screenshot>
   </screenshots>
 
@@ -187,6 +231,34 @@
   </provides>
 
   <releases>
+    <release version="2.0.1-5" date="2026-07-20">
+      <description>
+        <p xml:lang="en">Removed the User tab (avatar and user data manager), out of scope for a theme personalization tool. Wallpapers tab: added SVG support and a new "Install Wallpaper" button to install images into /usr/share/backgrounds via polkit.</p>
+        <p xml:lang="es">Eliminada la pestaña Usuario (gestor de avatar y datos de usuario), fuera del alcance de una herramienta de personalización de temas. Pestaña Fondos de pantalla: añadido soporte SVG y un nuevo botón "Instalar fondo" para instalar imágenes en /usr/share/backgrounds mediante polkit.</p>
+        <p xml:lang="fr">Suppression de l'onglet Utilisateur (gestionnaire d'avatar et de données utilisateur), hors du perimetre d'un outil de personnalisation de themes. Onglet Fonds d'ecran: ajout du support SVG et d'un nouveau bouton "Installer un fond d'ecran" pour installer des images dans /usr/share/backgrounds via polkit.</p>
+        <p xml:lang="pt">Removida a aba Usuario (gerenciador de avatar e dados do usuario), fora do escopo de uma ferramenta de personalizacao de temas. Aba Papeis de parede: adicionado suporte a SVG e um novo botao "Instalar papel de parede" para instalar imagens em /usr/share/backgrounds via polkit.</p>
+        <p xml:lang="de">Der Tab Benutzer (Avatar- und Benutzerdaten-Manager) wurde entfernt, da er nicht zum Umfang eines Theme-Personalisierungstools gehoert. Tab Hintergrundbilder: SVG-Unterstuetzung und ein neuer Button "Hintergrundbild installieren" hinzugefuegt, um Bilder ueber polkit nach /usr/share/backgrounds zu installieren.</p>
+        <p xml:lang="it">Rimossa la scheda Utente (gestore avatar e dati utente), fuori dall'ambito di uno strumento di personalizzazione dei temi. Scheda Sfondi: aggiunto il supporto SVG e un nuovo pulsante "Installa sfondo" per installare immagini in /usr/share/backgrounds tramite polkit.</p>
+        <p xml:lang="ru">Удалена вкладка Пользователь (менеджер аватара и данных пользователя), не относящаяся к задачам инструмента персонализации тем. Вкладка Обои: добавлена поддержка SVG и новая кнопка "Установить обои" для установки изображений в /usr/share/backgrounds через polkit.</p>
+        <p xml:lang="ro">Eliminata fila Utilizator (manager avatar si date utilizator), in afara domeniului unui instrument de personalizare a temelor. Fila Fundaluri: adaugat suport SVG si un buton nou "Instaleaza fundal" pentru a instala imagini in /usr/share/backgrounds prin polkit.</p>
+        <p xml:lang="en">Added three new tabs: GTK Themes, Icons &amp; Cursors and Login Screen (LightDM), plus a full restructure of the Panel tab with a live position preview and grouped settings. Fixed the app not following the system's active light/dark GTK theme. Registered the application/x-soplos-theme MIME type for .sth bundles, so they can now be opened directly from a file manager.</p>
+        <p xml:lang="es">Añadidas tres pestañas nuevas: GTK Themes, Icons &amp; Cursors y Login Screen (LightDM), además de una reestructuración completa de la pestaña Panel con preview de posición en vivo y ajustes agrupados. Corregido que la app no seguía el tema GTK claro/oscuro activo del sistema. Registrado el tipo MIME application/x-soplos-theme para los paquetes .sth, que ahora se pueden abrir directamente desde el gestor de archivos.</p>
+        <p xml:lang="fr">Ajout de trois nouveaux onglets : GTK Themes, Icons &amp; Cursors et Login Screen (LightDM), ainsi qu'une restructuration complete de l'onglet Panel avec un apercu de position en direct et des parametres regroupes. Correction du fait que l'application ne suivait pas le theme GTK clair/sombre actif du systeme. Enregistrement du type MIME application/x-soplos-theme pour les paquets .sth, qui peuvent desormais s'ouvrir directement depuis le gestionnaire de fichiers.</p>
+        <p xml:lang="pt">Adicionadas tres novas abas: GTK Themes, Icons &amp; Cursors e Login Screen (LightDM), alem de uma reestruturacao completa da aba Panel com previa de posicao ao vivo e configuracoes agrupadas. Corrigido o fato de o aplicativo nao seguir o tema GTK claro/escuro ativo do sistema. Registrado o tipo MIME application/x-soplos-theme para os pacotes .sth, que agora podem ser abertos diretamente pelo gerenciador de arquivos.</p>
+        <p xml:lang="de">Drei neue Tabs hinzugefuegt: GTK Themes, Icons &amp; Cursors und Login Screen (LightDM), sowie eine komplette Neustrukturierung des Panel-Tabs mit Live-Positionsvorschau und gruppierten Einstellungen. Behoben, dass die App dem aktiven hellen/dunklen GTK-Theme des Systems nicht folgte. Der MIME-Typ application/x-soplos-theme fuer .sth-Bundles wurde registriert, sodass diese jetzt direkt aus dem Dateimanager geoeffnet werden koennen.</p>
+        <p xml:lang="it">Aggiunte tre nuove schede: GTK Themes, Icons &amp; Cursors e Login Screen (LightDM), oltre a una ristrutturazione completa della scheda Panel con anteprima della posizione in tempo reale e impostazioni raggruppate. Risolto il problema per cui l'app non seguiva il tema GTK chiaro/scuro attivo del sistema. Registrato il tipo MIME application/x-soplos-theme per i pacchetti .sth, ora apribili direttamente dal gestore file.</p>
+        <p xml:lang="ru">Добавлены три новые вкладки: GTK Themes, Icons &amp; Cursors и Login Screen (LightDM), а также полная переработка вкладки Panel с живым предпросмотром позиции и сгруппированными настройками. Исправлено то, что приложение не следовало активной светлой/тёмной теме GTK системы. Зарегистрирован MIME-тип application/x-soplos-theme для пакетов .sth, которые теперь можно открывать прямо из файлового менеджера.</p>
+        <p xml:lang="ro">Adaugate trei file noi: GTK Themes, Icons &amp; Cursors si Login Screen (LightDM), plus o restructurare completa a filei Panel cu previzualizare live a pozitiei si setari grupate. Corectat faptul ca aplicatia nu urma tema GTK deschisa/intunecata activa a sistemului. Inregistrat tipul MIME application/x-soplos-theme pentru pachetele .sth, care acum pot fi deschise direct din managerul de fisiere.</p>
+        <p xml:lang="en">Full translation of the application into 8 languages: Spanish, English, French, Portuguese, German, Italian, Russian and Romanian.</p>
+        <p xml:lang="es">Traducción completa de la aplicación a 8 idiomas: español, inglés, francés, portugués, alemán, italiano, ruso y rumano.</p>
+        <p xml:lang="fr">Traduction complete de l'application en 8 langues : espagnol, anglais, francais, portugais, allemand, italien, russe et roumain.</p>
+        <p xml:lang="pt">Traducao completa da aplicacao para 8 idiomas: espanhol, ingles, frances, portugues, alemao, italiano, russo e romeno.</p>
+        <p xml:lang="de">Vollstaendige Uebersetzung der Anwendung in 8 Sprachen: Spanisch, Englisch, Franzoesisch, Portugiesisch, Deutsch, Italienisch, Russisch und Rumaenisch.</p>
+        <p xml:lang="it">Traduzione completa dell'applicazione in 8 lingue: spagnolo, inglese, francese, portoghese, tedesco, italiano, russo e rumeno.</p>
+        <p xml:lang="ru">Полный перевод приложения на 8 языков: испанский, английский, французский, португальский, немецкий, итальянский, русский и румынский.</p>
+        <p xml:lang="ro">Traducere completa a aplicatiei in 8 limbi: spaniola, engleza, franceza, portugheza, germana, italiana, rusa si romana.</p>
+      </description>
+    </release>
     <release version="2.0.1-4" date="2026-07-07">
       <description>
         <p xml:lang="en">Build dependency python3-all replaced with python3.</p>

@@ -49,13 +49,16 @@ class ThemeManagerWindow(Gtk.ApplicationWindow):
 
     def _create_tabs(self):
         tabs = [
-            ('themes',     _("Themes"),      'preferences-desktop-theme'),
-            ('wallpapers', _("Wallpapers"),   'preferences-desktop-wallpaper'),
-            ('avatar',     _("User"),         'user-identity'),
-            ('panel',      _("Panel"),        'preferences-system'),
-            ('docklike',   _("Dock"),         'preferences-desktop'),
+            ('themes',        _("Themes"),           'preferences-desktop-theme'),
+            ('wallpapers',    _("Wallpapers"),        'preferences-desktop-wallpaper'),
+            ('gtk_themes',    _("GTK Themes"),        'preferences-desktop-theme'),
+            ('icons_cursors', _("Icons & Cursors"),   'preferences-desktop-icons'),
+            ('panel',         _("Panel"),             'preferences-system'),
+            ('docklike',      _("Dock"),              'preferences-desktop'),
+            ('lightdm',       _("Login Screen"),      'system-lock-screen'),
         ]
 
+        self.tabs = {}
         for tab_id, tab_label, tab_icon in tabs:
             try:
                 tab_content = self._load_tab(tab_id)
@@ -69,9 +72,25 @@ class ThemeManagerWindow(Gtk.ApplicationWindow):
                 label_box.pack_start(label, False, False, 0)
                 label_box.show_all()
 
-                self.notebook.append_page(tab_content, label_box)
+                page_index = self.notebook.append_page(tab_content, label_box)
+                self.tabs[tab_id] = (page_index, tab_content)
             except Exception as e:
                 logger.error(f"Error loading tab '{tab_id}': {e}", exc_info=True)
+
+    def open_theme_bundle(self, bundle_path: str):
+        """Switch to the Themes tab and start installing bundle_path.
+
+        Used when a .sth file is opened from a file manager (see
+        core/application.py's do_open) — activation routes here whether the
+        app was just started or was already running.
+        """
+        entry = self.tabs.get('themes')
+        if not entry:
+            return
+        page_index, themes_tab = entry
+        self.notebook.set_current_page(page_index)
+        self.present()
+        themes_tab.install_bundle_path(bundle_path)
 
     def _load_tab(self, tab_id: str):
         if tab_id == 'themes':
@@ -80,15 +99,21 @@ class ThemeManagerWindow(Gtk.ApplicationWindow):
         elif tab_id == 'wallpapers':
             from ui.tabs.wallpapers_tab import WallpapersTab
             return WallpapersTab(config=self.config, parent_window=self)
-        elif tab_id == 'avatar':
-            from ui.tabs.avatar_tab import AvatarTab
-            return AvatarTab(config=self.config, parent_window=self)
+        elif tab_id == 'gtk_themes':
+            from ui.tabs.gtk_themes_tab import GtkThemesTab
+            return GtkThemesTab(config=self.config, parent_window=self)
+        elif tab_id == 'icons_cursors':
+            from ui.tabs.icons_cursors_tab import IconsCursorsTab
+            return IconsCursorsTab(config=self.config, parent_window=self)
         elif tab_id == 'panel':
             from ui.tabs.panel_tab import PanelTab
             return PanelTab(config=self.config, parent_window=self)
         elif tab_id == 'docklike':
             from ui.tabs.docklike_tab import DocklikeTab
             return DocklikeTab(config=self.config, parent_window=self)
+        elif tab_id == 'lightdm':
+            from ui.tabs.lightdm_tab import LightdmTab
+            return LightdmTab(config=self.config, parent_window=self)
         return None
 
     def _create_progress_bar(self, parent):

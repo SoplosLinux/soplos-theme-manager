@@ -38,6 +38,9 @@ SYSTEM_GTK_DIR        = Path("/usr/share/themes")
 SYSTEM_ICONS_DIR      = Path("/usr/share/icons")
 SYSTEM_WALLPAPERS_DIR = Path("/usr/share/backgrounds/soplos-themes")
 
+# Destination for wallpapers installed by the user from the Wallpapers tab
+SYSTEM_WALLPAPERS_INSTALL_DIR = Path("/usr/share/backgrounds")
+
 # Search order when locating installed theme assets
 SYSTEM_GTK_SEARCH   = [Path.home() / ".themes",
                         Path("/usr/share/themes"),

@@ -8,6 +8,7 @@ from gi.repository import Gtk, GLib, GdkPixbuf, Pango
 
 from core.i18n_manager import _
 from services.xfce_theme_service import XfceThemeService
+from services.theme_export_service import ThemeExportService
 from utils.logger import logger
 
 WALLPAPER_DIRS = [
@@ -17,7 +18,7 @@ WALLPAPER_DIRS = [
     Path.home() / "Pictures",
     Path.home() / "Imágenes",
 ]
-WALLPAPER_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp', '.bmp'}
+WALLPAPER_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp', '.bmp', '.svg'}
 THUMB_WIDTH = 200
 THUMB_HEIGHT = 120
 
@@ -76,6 +77,7 @@ class WallpapersTab(Gtk.Box):
         self.parent_window = parent_window
         self.selected_card: Optional[WallpaperCard] = None
         self.theme_service = XfceThemeService()
+        self.export_service = ThemeExportService()
 
         self._loaded = False
         self._setup_ui()
@@ -138,6 +140,14 @@ class WallpapersTab(Gtk.Box):
         apply_btn.get_style_context().add_class('suggested-action')
         apply_btn.connect('clicked', self._on_apply)
         actions_box.pack_start(apply_btn, False, False, 0)
+
+        install_btn = Gtk.Button()
+        install_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        install_box.pack_start(Gtk.Image.new_from_icon_name('list-add', Gtk.IconSize.BUTTON), False, False, 0)
+        install_box.pack_start(Gtk.Label(label=_("Install Wallpaper")), False, False, 0)
+        install_btn.add(install_box)
+        install_btn.connect('clicked', self._on_install)
+        actions_box.pack_start(install_btn, False, False, 0)
 
         # Status label
         self.status_label = Gtk.Label()
@@ -231,6 +241,48 @@ class WallpapersTab(Gtk.Box):
         self.parent_window.hide_progress()
         msg = _("Wallpaper applied") if ok else _("Error applying wallpaper")
         self.status_label.set_text(msg)
+        return False
+
+    def _on_install(self, btn):
+        dialog = Gtk.FileChooserDialog(
+            title=_("Select wallpapers to install"),
+            parent=self.parent_window,
+            action=Gtk.FileChooserAction.OPEN,
+        )
+        dialog.add_buttons(
+            Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+            Gtk.STOCK_OPEN, Gtk.ResponseType.OK,
+        )
+        dialog.set_select_multiple(True)
+
+        img_filter = Gtk.FileFilter()
+        img_filter.set_name(_("Images"))
+        for pattern in ('*.jpg', '*.jpeg', '*.png', '*.webp', '*.bmp', '*.svg'):
+            img_filter.add_pattern(pattern)
+        dialog.add_filter(img_filter)
+
+        response = dialog.run()
+        paths = dialog.get_filenames() if response == Gtk.ResponseType.OK else []
+        dialog.destroy()
+        if not paths:
+            return
+
+        self.parent_window.show_progress(_("Installing wallpapers…"))
+
+        def worker():
+            ok, msg = self.export_service.install_wallpapers_system(paths)
+            GLib.idle_add(self._on_install_done, ok, msg)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _on_install_done(self, ok: bool, msg: str):
+        self.parent_window.hide_progress()
+        if ok:
+            self.status_label.set_text(_("Wallpapers installed"))
+            self._loaded = True
+            self._load_wallpapers_async()
+        else:
+            self.status_label.set_text(_("Error installing wallpapers: {e}").format(e=msg))
         return False
 
     def _show_info(self, message: str):

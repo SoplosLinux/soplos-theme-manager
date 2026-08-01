@@ -325,32 +325,38 @@ class PanelTab(Gtk.Box):
     # ── UI construction ───────────────────────────────────────────────────────
 
     def _setup_ui(self):
-        # ── Main horizontal split: left=settings  right=plugins ───────────────
-        body = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
-        self.pack_start(body, True, True, 0)
+        # ── Single full-width column: settings on top, plugins below ───────────
+        # The whole tab lives inside one outer ScrolledWindow (same pattern as
+        # Themes/Wallpapers/Icons&Cursors) so a short app window scrolls the
+        # whole page instead of forcing the window itself to grow taller. The
+        # plugin lists further down keep their own internal scroll too, so
+        # long lists don't force the outer page to grow unreasonably either.
+        outer_scroller = Gtk.ScrolledWindow()
+        outer_scroller.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.pack_start(outer_scroller, True, True, 0)
+
+        body = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        outer_scroller.add(body)
 
         # ════════════════════════════════════════════
-        # LEFT COLUMN — panel settings (fixed width)
+        # TOP AREA — panel selector, preview, grouped settings
         # ════════════════════════════════════════════
-        left_col = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        left_col.set_size_request(250, -1)
-        body.pack_start(left_col, False, False, 0)
+        top_area = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        top_area.set_margin_start(16)
+        top_area.set_margin_end(16)
+        top_area.set_margin_top(12)
+        body.pack_start(top_area, False, False, 0)
 
-        # Panel selector row — always visible
-        self._selector_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        self._selector_row.set_margin_start(14)
-        self._selector_row.set_margin_end(14)
-        self._selector_row.set_margin_top(10)
-        self._selector_row.set_margin_bottom(6)
-        left_col.pack_start(self._selector_row, False, False, 0)
+        # Panel selector — segmented pills (one per panel) + add/delete
+        self._selector_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        self._selector_row.set_margin_bottom(12)
+        top_area.pack_start(self._selector_row, False, False, 0)
 
-        slbl = Gtk.Label(label=_("Panel:"))
-        slbl.get_style_context().add_class('dim-label')
-        self._selector_row.pack_start(slbl, False, False, 0)
-
-        self._panel_combo = Gtk.ComboBoxText()
-        self._panel_combo.connect('changed', self._on_panel_changed)
-        self._selector_row.pack_start(self._panel_combo, True, True, 0)
+        self._panel_pills_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        self._panel_pills_box.get_style_context().add_class('linked')
+        self._selector_row.pack_start(self._panel_pills_box, False, False, 0)
+        self._panel_pill_group = None   # first Gtk.RadioButton, used to group the rest
+        self._panel_ids_order  = []     # ids in the same order as the pills
 
         new_btn = Gtk.Button()
         new_btn.add(Gtk.Image.new_from_icon_name('list-add', Gtk.IconSize.BUTTON))
@@ -365,17 +371,60 @@ class PanelTab(Gtk.Box):
         self._del_panel_btn.set_sensitive(False)
         self._selector_row.pack_start(self._del_panel_btn, False, False, 0)
 
-        # Settings grid
-        grid = Gtk.Grid()
-        grid.set_row_spacing(10)
-        grid.set_column_spacing(12)
-        grid.set_margin_top(14)
-        grid.set_margin_bottom(10)
-        grid.set_margin_start(14)
-        grid.set_margin_end(14)
-        left_col.pack_start(grid, False, False, 0)
+        # ── Live position preview ───────────────────────────────────────────
+        preview_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=14)
+        preview_box.get_style_context().add_class('theme-card')
+        preview_box.set_margin_bottom(12)
+        top_area.pack_start(preview_box, False, False, 0)
 
-        def row(r, label_text, widget):
+        self._preview_area = Gtk.DrawingArea()
+        self._preview_area.set_size_request(120, 72)
+        self._preview_area.set_margin_start(10)
+        self._preview_area.set_margin_top(10)
+        self._preview_area.set_margin_bottom(10)
+        self._preview_area.connect('draw', self._on_preview_draw)
+        preview_box.pack_start(self._preview_area, False, False, 0)
+
+        self._preview_label = Gtk.Label()
+        self._preview_label.set_line_wrap(True)
+        self._preview_label.set_halign(Gtk.Align.START)
+        self._preview_label.set_valign(Gtk.Align.CENTER)
+        self._preview_label.set_margin_end(10)
+        self._preview_label.get_style_context().add_class('dim-label')
+        preview_box.pack_start(self._preview_label, True, True, 0)
+
+        # ── Grouped settings sections — laid out two-up so the row uses the
+        # full window width instead of stacking every field in one narrow column.
+        sections_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        sections_row.set_homogeneous(True)
+        top_area.pack_start(sections_row, False, False, 0)
+
+        def make_section(parent_box, title, hint):
+            card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+            card.get_style_context().add_class('theme-card')
+
+            lbl = Gtk.Label()
+            lbl.set_markup(
+                f"<b>{GLib.markup_escape_text(title)}</b>  "
+                f"<span alpha='55%' size='small'>{GLib.markup_escape_text(hint)}</span>"
+            )
+            lbl.set_halign(Gtk.Align.START)
+            lbl.set_margin_start(8)
+            lbl.set_margin_top(8)
+            card.pack_start(lbl, False, False, 0)
+
+            grid = Gtk.Grid()
+            grid.set_row_spacing(8)
+            grid.set_column_spacing(8)
+            grid.set_margin_start(8)
+            grid.set_margin_end(8)
+            grid.set_margin_bottom(8)
+            card.pack_start(grid, False, False, 0)
+
+            parent_box.pack_start(card, True, True, 0)
+            return grid
+
+        def row(grid, r, label_text, widget):
             lbl = Gtk.Label(label=label_text)
             lbl.set_halign(Gtk.Align.END)
             lbl.get_style_context().add_class('dim-label')
@@ -383,72 +432,82 @@ class PanelTab(Gtk.Box):
             widget.set_hexpand(True)
             grid.attach(widget, 1, r, 1, 1)
 
+        # -- Posición: dónde vive el panel --------------------------------------
+        pos_grid = make_section(sections_row, _("Position"), _("where the panel lives"))
+
         self._pos_combo = Gtk.ComboBoxText()
         for lbl in [_("Top"), _("Bottom"), _("Left"), _("Right")]:
             self._pos_combo.append_text(lbl)
         self._pos_combo.set_active(1)
-        row(0, _("Position:"), self._pos_combo)
-
-        self._mode_combo = Gtk.ComboBoxText()
-        for lbl in [_("Horizontal"), _("Vertical"), _("Deskbar")]:
-            self._mode_combo.append_text(lbl)
-        self._mode_combo.set_active(0)
-        row(1, _("Mode:"), self._mode_combo)
+        self._pos_combo.connect('changed', self._on_preview_inputs_changed)
+        row(pos_grid, 0, _("Position:"), self._pos_combo)
 
         self._align_combo = Gtk.ComboBoxText()
         for lbl in [_("Left"), _("Center"), _("Right")]:
             self._align_combo.append_text(lbl)
         self._align_combo.set_active(1)
-        row(2, _("Alignment:"), self._align_combo)
-
-        self._size_spin = Gtk.SpinButton.new_with_range(16, 128, 1)
-        self._size_spin.set_value(42)
-        row(3, _("Height (px):"), self._size_spin)
-
-        self._icon_spin = Gtk.SpinButton.new_with_range(8, 96, 1)
-        self._icon_spin.set_value(24)
-        row(4, _("Icon size (px):"), self._icon_spin)
+        self._align_combo.connect('changed', self._on_preview_inputs_changed)
+        row(pos_grid, 1, _("Alignment:"), self._align_combo)
 
         self._length_spin = Gtk.SpinButton.new_with_range(1, 100, 1)
         self._length_spin.set_value(100)
-        row(5, _("Length (%):"), self._length_spin)
-
-        auto_expand_box = Gtk.Box()
-        self._auto_expand_switch = Gtk.Switch()
-        self._auto_expand_switch.set_halign(Gtk.Align.START)
-        auto_expand_box.pack_start(self._auto_expand_switch, False, False, 0)
-        row(6, _("Auto-expand:"), auto_expand_box)
-
-        self._rows_spin = Gtk.SpinButton.new_with_range(1, 6, 1)
-        self._rows_spin.set_value(1)
-        row(7, _("Rows:"), self._rows_spin)
-
-        self._autohide_combo = Gtk.ComboBoxText()
-        for opt in [_("Never"), _("Intelligent"), _("Always")]:
-            self._autohide_combo.append_text(opt)
-        self._autohide_combo.set_active(0)
-        row(8, _("Auto-hide:"), self._autohide_combo)
-
-        dark_box = Gtk.Box()
-        self._dark_switch = Gtk.Switch()
-        self._dark_switch.set_halign(Gtk.Align.START)
-        dark_box.pack_start(self._dark_switch, False, False, 0)
-        row(9, _("Dark mode:"), dark_box)
+        self._length_spin.connect('value-changed', self._on_preview_inputs_changed)
+        row(pos_grid, 2, _("Length (%):"), self._length_spin)
 
         lock_box = Gtk.Box()
         self._lock_switch = Gtk.Switch()
         self._lock_switch.set_halign(Gtk.Align.START)
         lock_box.pack_start(self._lock_switch, False, False, 0)
-        row(10, _("Lock position:"), lock_box)
+        row(pos_grid, 3, _("Lock position:"), lock_box)
 
-        # Apply button at the bottom of left column
-        left_col.pack_start(Gtk.Separator(), False, False, 0)
+        # -- Apariencia: tamaño y estilo -----------------------------------------
+        look_grid = make_section(sections_row, _("Appearance"), _("size and style"))
 
+        self._mode_combo = Gtk.ComboBoxText()
+        for lbl in [_("Horizontal"), _("Vertical"), _("Deskbar")]:
+            self._mode_combo.append_text(lbl)
+        self._mode_combo.set_active(0)
+        row(look_grid, 0, _("Mode:"), self._mode_combo)
+
+        self._size_spin = Gtk.SpinButton.new_with_range(16, 128, 1)
+        self._size_spin.set_value(42)
+        row(look_grid, 1, _("Height (px):"), self._size_spin)
+
+        self._icon_spin = Gtk.SpinButton.new_with_range(8, 96, 1)
+        self._icon_spin.set_value(24)
+        row(look_grid, 2, _("Icon size (px):"), self._icon_spin)
+
+        self._rows_spin = Gtk.SpinButton.new_with_range(1, 6, 1)
+        self._rows_spin.set_value(1)
+        row(look_grid, 3, _("Rows:"), self._rows_spin)
+
+        dark_box = Gtk.Box()
+        self._dark_switch = Gtk.Switch()
+        self._dark_switch.set_halign(Gtk.Align.START)
+        dark_box.pack_start(self._dark_switch, False, False, 0)
+        row(look_grid, 4, _("Dark mode:"), dark_box)
+
+        # -- Comportamiento: cuándo se oculta ------------------------------------
+        behavior_grid = make_section(sections_row, _("Behavior"), _("when it hides"))
+
+        self._autohide_combo = Gtk.ComboBoxText()
+        for opt in [_("Never"), _("Intelligent"), _("Always")]:
+            self._autohide_combo.append_text(opt)
+        self._autohide_combo.set_active(0)
+        row(behavior_grid, 0, _("Auto-hide:"), self._autohide_combo)
+
+        auto_expand_box = Gtk.Box()
+        self._auto_expand_switch = Gtk.Switch()
+        self._auto_expand_switch.set_halign(Gtk.Align.START)
+        auto_expand_box.pack_start(self._auto_expand_switch, False, False, 0)
+        row(behavior_grid, 1, _("Auto-expand:"), auto_expand_box)
+
+        # ── Apply bar — right below the sections, above the plugin list ────────
         apply_bar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
-        apply_bar.set_halign(Gtk.Align.CENTER)
+        apply_bar.set_halign(Gtk.Align.END)
         apply_bar.set_margin_top(10)
         apply_bar.set_margin_bottom(10)
-        left_col.pack_end(apply_bar, False, False, 0)
+        top_area.pack_start(apply_bar, False, False, 0)
 
         self.apply_btn = Gtk.Button()
         apply_inner = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
@@ -462,19 +521,17 @@ class PanelTab(Gtk.Box):
         self.apply_btn.connect('clicked', self._on_apply)
         apply_bar.pack_start(self.apply_btn, False, False, 0)
 
-        body.pack_start(
-            Gtk.Separator(orientation=Gtk.Orientation.VERTICAL), False, False, 0
-        )
+        body.pack_start(Gtk.Separator(), False, False, 0)
 
         # ════════════════════════════════════════════
-        # RIGHT COLUMN — plugin management (expands)
+        # BOTTOM AREA — plugin management (expands, full width)
         # ════════════════════════════════════════════
-        right_col = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        body.pack_start(right_col, True, True, 0)
+        plugins_col = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        body.pack_start(plugins_col, True, True, 0)
 
         # Header
         ph_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        ph_box.set_margin_start(12)
+        ph_box.set_margin_start(16)
         ph_box.set_margin_top(8)
         ph_box.set_margin_bottom(6)
         ph_box.pack_start(
@@ -485,23 +542,23 @@ class PanelTab(Gtk.Box):
         ph_lbl.get_style_context().add_class('theme-card-label')
         ph_lbl.set_halign(Gtk.Align.START)
         ph_box.pack_start(ph_lbl, False, False, 0)
-        right_col.pack_start(ph_box, False, False, 0)
-        right_col.pack_start(Gtk.Separator(), False, False, 0)
+        plugins_col.pack_start(ph_box, False, False, 0)
+        plugins_col.pack_start(Gtk.Separator(), False, False, 0)
 
         # Two-pane plugin split
         plug_hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
-        right_col.pack_start(plug_hbox, True, True, 0)
+        plugins_col.pack_start(plug_hbox, True, True, 0)
 
         # ── Active plugins list ───────────────────────────────────────────────
         act_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        act_box.set_size_request(220, -1)
+        act_box.set_size_request(260, -1)
         plug_hbox.pack_start(act_box, False, False, 0)
 
         act_hdr = Gtk.Box()
         act_hdr.set_margin_start(8)
         act_hdr.set_margin_top(6)
         act_hdr.set_margin_bottom(4)
-        act_lbl = Gtk.Label(label=_("Active (ordered)"))
+        act_lbl = Gtk.Label(label=_("Active (drag to reorder)"))
         act_lbl.get_style_context().add_class('dim-label')
         act_lbl.set_halign(Gtk.Align.START)
         act_hdr.pack_start(act_lbl, True, True, 0)
@@ -510,6 +567,7 @@ class PanelTab(Gtk.Box):
 
         sc_act = Gtk.ScrolledWindow()
         sc_act.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        sc_act.set_min_content_height(220)
         act_box.pack_start(sc_act, True, True, 0)
 
         self._active_store = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str, int)
@@ -566,6 +624,10 @@ class PanelTab(Gtk.Box):
         avail_lbl.get_style_context().add_class('dim-label')
         avail_lbl.set_halign(Gtk.Align.START)
         avail_hdr.pack_start(avail_lbl, True, True, 0)
+        avail_hint = Gtk.Label(label=_("double-click to add"))
+        avail_hint.get_style_context().add_class('dim-label')
+        avail_hint.set_halign(Gtk.Align.END)
+        avail_hdr.pack_start(avail_hint, False, False, 0)
         avail_box.pack_start(avail_hdr, False, False, 0)
 
         self._search = Gtk.SearchEntry()
@@ -580,15 +642,17 @@ class PanelTab(Gtk.Box):
 
         sc_avail = Gtk.ScrolledWindow()
         sc_avail.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        sc_avail.set_min_content_height(220)
         avail_box.pack_start(sc_avail, True, True, 0)
 
-        self._avail_store  = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str, str)
+        # Columns: pixbuf, name (plain, used for filtering), module, comment, markup (display)
+        self._avail_store  = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str, str, str)
         self._avail_filter = self._avail_store.filter_new()
         self._avail_filter.set_visible_func(self._filter_func)
 
         self._avail_view = Gtk.TreeView(model=self._avail_filter)
         self._avail_view.set_headers_visible(False)
-        self._avail_view.set_tooltip_column(3)
+        self._avail_view.connect('row-activated', self._on_avail_row_activated)
 
         col_ai = Gtk.TreeViewColumn()
         cr_ai  = Gtk.CellRendererPixbuf()
@@ -599,8 +663,9 @@ class PanelTab(Gtk.Box):
         col_an = Gtk.TreeViewColumn()
         cr_an  = Gtk.CellRendererText()
         cr_an.set_property('ellipsize', Pango.EllipsizeMode.END)
+        cr_an.set_property('ypad', 4)
         col_an.pack_start(cr_an, True)
-        col_an.add_attribute(cr_an, 'text', 1)
+        col_an.add_attribute(cr_an, 'markup', 4)
         self._avail_view.append_column(col_an)
 
         sc_avail.add(self._avail_view)
@@ -644,20 +709,119 @@ class PanelTab(Gtk.Box):
         self._current_panel = pk
         self._available     = available
 
-        self._panel_combo.handler_block_by_func(self._on_panel_changed)
-        model = self._panel_combo.get_model()
-        for i in range(len(model) - 1, -1, -1):
-            self._panel_combo.remove(i)
-        for i in ids:
-            self._panel_combo.append_text(f"Panel {i}")
-        self._panel_combo.set_active(0)
-        self._panel_combo.handler_unblock_by_func(self._on_panel_changed)
-
+        self._rebuild_panel_pills(ids, ids[0])
         self._del_panel_btn.set_sensitive(len(ids) > 1)
         self._fill_settings(settings)
         self._fill_active(active)
         self._fill_available(available)
         self.parent_window.hide_progress()
+        return False
+
+    # ── Panel pill selector ──────────────────────────────────────────────────
+
+    def _rebuild_panel_pills(self, ids: list, active_id: int):
+        """Rebuild the segmented Panel-1/Panel-2/... selector and select active_id.
+
+        Selecting a pill during construction would otherwise fire 'toggled' and
+        kick off a redundant reload — the caller always loads settings itself
+        right after rebuilding, so pill toggling is suppressed while building.
+        """
+        for child in list(self._panel_pills_box.get_children()):
+            self._panel_pills_box.remove(child)
+        self._panel_ids_order = list(ids)
+        self._panel_pill_group = None
+
+        self._suppress_pill_toggle = True
+        for pid in ids:
+            btn = Gtk.RadioButton.new_from_widget(self._panel_pill_group)
+            btn.set_mode(False)   # draw as a button, not a radio dot
+            btn.set_label(_("Panel {n}").format(n=pid))
+            btn.set_active(pid == active_id)
+            btn.connect('toggled', self._on_panel_pill_toggled, pid)
+            self._panel_pills_box.pack_start(btn, True, True, 0)
+            if self._panel_pill_group is None:
+                self._panel_pill_group = btn
+        self._suppress_pill_toggle = False
+        self._panel_pills_box.show_all()
+
+    def _on_panel_pill_toggled(self, btn, pid):
+        if not btn.get_active() or getattr(self, '_suppress_pill_toggle', False):
+            return
+        self._current_panel = f'panel-{pid}'
+        self.parent_window.show_progress(_("Reading panel settings…"))
+        threading.Thread(target=self._reload_worker, daemon=True).start()
+
+    # ── Live position preview ────────────────────────────────────────────────
+
+    _PREVIEW_EDGES = ('top', 'bottom', 'left', 'right')
+
+    def _on_preview_inputs_changed(self, *_args):
+        self._preview_area.queue_draw()
+        edge_idx  = self._pos_combo.get_active()
+        edge      = self._PREVIEW_EDGES[edge_idx] if 0 <= edge_idx < 4 else 'bottom'
+        align_idx = self._align_combo.get_active()
+        align     = {0: _("start"), 1: _("center"), 2: _("end")}.get(align_idx, _("center"))
+        length    = int(self._length_spin.get_value())
+        edge_name = {
+            'top':    _("top"),
+            'bottom': _("bottom"),
+            'left':   _("left"),
+            'right':  _("right"),
+        }.get(edge, edge)
+        if length >= 100:
+            self._preview_label.set_markup(
+                _("Full width on the <b>{edge}</b> edge.").format(edge=edge_name)
+            )
+        else:
+            self._preview_label.set_markup(
+                _("{length}% wide, {align}-aligned on the <b>{edge}</b> edge.").format(
+                    length=length, align=align, edge=edge_name
+                )
+            )
+
+    def _on_preview_draw(self, area, cr):
+        w = area.get_allocated_width()
+        h = area.get_allocated_height()
+
+        style = area.get_style_context()
+        fg = style.get_color(Gtk.StateFlags.NORMAL)
+
+        # Screen outline
+        cr.set_line_width(1.5)
+        cr.set_source_rgba(fg.red, fg.green, fg.blue, 0.35)
+        cr.rectangle(1, 1, w - 2, h - 2)
+        cr.stroke()
+
+        edge_idx  = self._pos_combo.get_active()
+        edge      = self._PREVIEW_EDGES[edge_idx] if 0 <= edge_idx < 4 else 'bottom'
+        align_idx = self._align_combo.get_active()
+        length    = max(1, min(100, int(self._length_spin.get_value()))) / 100.0
+
+        thickness = 5
+        cr.set_source_rgba(1.0, 0.533, 0.0, 0.9)   # @soplos_orange (#ff8800)
+
+        if edge in ('top', 'bottom'):
+            bar_w = (w - 4) * length
+            if align_idx == 0:
+                x = 2
+            elif align_idx == 2:
+                x = w - 2 - bar_w
+            else:
+                x = 2 + (w - 4 - bar_w) / 2
+            y = 2 if edge == 'top' else h - 2 - thickness
+            cr.rectangle(x, y, bar_w, thickness)
+        else:
+            bar_h = (h - 4) * length
+            if align_idx == 0:
+                y = 2
+            elif align_idx == 2:
+                y = h - 2 - bar_h
+            else:
+                y = 2 + (h - 4 - bar_h) / 2
+            x = 2 if edge == 'left' else w - 2 - thickness
+            cr.rectangle(x, y, thickness, bar_h)
+
+        cr.fill()
         return False
 
     def _fill_settings(self, s: dict):
@@ -766,8 +930,12 @@ class PanelTab(Gtk.Box):
     def _fill_available(self, plugins: list):
         self._avail_store.clear()
         for p in plugins:
-            pb = _load_icon(p['icon'], ICON_SIZE)
-            self._avail_store.append([pb, p['name'], p['module'], p.get('comment', '')])
+            pb      = _load_icon(p['icon'], ICON_SIZE)
+            comment = p.get('comment', '')
+            markup  = f"<b>{GLib.markup_escape_text(p['name'])}</b>"
+            if comment:
+                markup += f"\n<span alpha='65%' size='small'>{GLib.markup_escape_text(comment)}</span>"
+            self._avail_store.append([pb, p['name'], p['module'], comment, markup])
 
     def _filter_func(self, model, it, _data):
         q = self._search.get_text().lower()
@@ -776,15 +944,7 @@ class PanelTab(Gtk.Box):
         name = (model.get_value(it, 1) or '').lower()
         return q in name
 
-    # ── Panel selector ────────────────────────────────────────────────────────
-
-    def _on_panel_changed(self, combo):
-        idx = combo.get_active()
-        if idx < 0 or idx >= len(self._panel_ids):
-            return
-        self._current_panel = f'panel-{self._panel_ids[idx]}'
-        self.parent_window.show_progress(_("Reading panel settings…"))
-        threading.Thread(target=self._reload_worker, daemon=True).start()
+    # ── Panel reload ──────────────────────────────────────────────────────────
 
     def _reload_worker(self):
         pk       = self._current_panel
@@ -873,7 +1033,15 @@ class PanelTab(Gtk.Box):
         model, it = sel.get_selected()
         if not it:
             return
-        real_it = self._avail_filter.convert_iter_to_child_iter(it)
+        self._add_plugin_from_iter(it)
+
+    def _on_avail_row_activated(self, view, path, _column):
+        it = self._avail_filter.get_iter(path)
+        if it:
+            self._add_plugin_from_iter(it)
+
+    def _add_plugin_from_iter(self, filter_it):
+        real_it = self._avail_filter.convert_iter_to_child_iter(filter_it)
         pb      = self._avail_store.get_value(real_it, 0)
         name    = self._avail_store.get_value(real_it, 1)
         module  = self._avail_store.get_value(real_it, 2)
@@ -1003,10 +1171,7 @@ class PanelTab(Gtk.Box):
 
     def _on_new_panel_done(self, new_id: int, new_ids: list):
         self._panel_ids = new_ids
-        self._panel_combo.handler_block_by_func(self._on_panel_changed)
-        self._panel_combo.append_text(f"Panel {new_id}")
-        self._panel_combo.set_active(len(new_ids) - 1)
-        self._panel_combo.handler_unblock_by_func(self._on_panel_changed)
+        self._rebuild_panel_pills(new_ids, new_id)
         self._current_panel = f'panel-{new_id}'
         self._del_panel_btn.set_sensitive(True)
         pk       = self._current_panel
@@ -1056,14 +1221,7 @@ class PanelTab(Gtk.Box):
 
     def _on_delete_panel_done(self, panel_id: int, new_ids: list):
         self._panel_ids = new_ids
-        self._panel_combo.handler_block_by_func(self._on_panel_changed)
-        model = self._panel_combo.get_model()
-        for i in range(len(model) - 1, -1, -1):
-            self._panel_combo.remove(i)
-        for i in new_ids:
-            self._panel_combo.append_text(f"Panel {i}")
-        self._panel_combo.set_active(0)
-        self._panel_combo.handler_unblock_by_func(self._on_panel_changed)
+        self._rebuild_panel_pills(new_ids, new_ids[0])
         self._current_panel = f'panel-{new_ids[0]}'
         self._del_panel_btn.set_sensitive(len(new_ids) > 1)
         self.apply_btn.set_sensitive(True)

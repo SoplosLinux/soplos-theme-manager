@@ -1,19 +1,18 @@
 # Soplos Theme Manager
 
 [![License: GPL-3.0+](https://img.shields.io/badge/License-GPL--3.0%2B-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Version](https://img.shields.io/badge/version-2.0.1--4-green.svg)]()
+[![Version](https://img.shields.io/badge/version-2.0.1--5-green.svg)]()
 
 Desktop theme manager for Soplos Linux Tyron (XFCE). Apply, create, export and import complete desktop themes with a single click.
 
 ## 📝 Description
 
-Soplos Theme Manager is the official theme management tool for Soplos Linux Tyron. It provides a complete graphical interface to manage XFCE desktop themes, wallpapers, user avatar and panel dock configuration — all in one application.
+Soplos Theme Manager is the official theme management tool for Soplos Linux Tyron. It provides a complete graphical interface to manage XFCE desktop themes, wallpapers and panel dock configuration — all in one application.
 
 ## ✨ Features
 
 - 🎨 **Theme Gallery**: Apply, create, export and import full XFCE desktop themes.
-- 🖼️ **Wallpaper Browser**: Browse and apply wallpapers from system directories. Near-instant loading — thumbnails decoded in background thread.
-- 👤 **User Manager**: Replace Mugshot — set user avatar with crop dialog, edit user data, and manage group membership with checkboxes (applied via polkit).
+- 🖼️ **Wallpaper Browser**: Browse and apply wallpapers from system directories, including SVG. Near-instant loading — thumbnails decoded in background thread. Install new wallpapers into `/usr/share/backgrounds` directly from the app (via polkit).
 - 🔧 **Panel**: Full XFCE panel configuration — position, size, icon size, length, rows, auto-hide, dark mode, lock. Add, remove and reorder plugins. Settings button opens each plugin's own configuration dialog via gdb process injection into the plugin wrapper (works for any plugin generically; requires gdb).
 - ⚓ **Dock**: Manage Docklike Taskbar pinned apps — add, remove and reorder from an available apps browser.
 - 📦 **Theme Bundles**: Export and import portable `.sth` files — each bundle contains the actual GTK theme, icon theme, cursor theme and wallpaper, making themes fully self-contained and shareable across machines.
@@ -60,14 +59,22 @@ soplos-theme-manager
 ### Wallpaper Browser
 ![Wallpaper Browser](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/master/assets/screenshots/screenshot2.png)
 
-### Avatar Manager
-![Avatar Manager](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/master/assets/screenshots/screenshot3.png)
+### GTK Themes
+![GTK Themes](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/master/assets/screenshots/screenshot3.png)
+
+### Icons & Cursors
+![Icons & Cursors](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/master/assets/screenshots/screenshot4.png)
 
 ### Panel Configuration
-![Panel Configuration](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/master/assets/screenshots/screenshot4.png)
+![Panel Configuration](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/master/assets/screenshots/screenshot5.png)
+![Panel Plugins](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/master/assets/screenshots/screenshot6.png)
 
 ### Dock Manager
-![Dock Manager](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/master/assets/screenshots/screenshot5.png)
+![Dock Manager](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/master/assets/screenshots/screenshot7.png)
+
+### Login Screen (LightDM)
+![Login Screen](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/master/assets/screenshots/screenshot8.png)
+![Login Box Position](https://raw.githubusercontent.com/SoplosLinux/soplos-theme-manager/master/assets/screenshots/screenshot9.png)
 
 ## 🌐 Supported Languages
 
@@ -98,6 +105,20 @@ Developed by Sergi Perich (<info@soploslinux.com>)
 - [Donate](https://www.paypal.com/paypalme/isubdes)
 
 ## 📦 Versions
+
+### v2.0.1-5 (2026-07-20)
+- Removed the User tab (avatar/user data manager) — out of scope for a theme personalization tool.
+- Wallpapers tab: SVG support in the wallpaper scanner.
+- Wallpapers tab: new "Install Wallpaper" button — installs selected images into `/usr/share/backgrounds` via a single pkexec call.
+- New tab: GTK Themes — list, activate and install GTK widget themes from `.tar.gz`/`.tar.xz`/`.tar.bz2`/`.zip` packages; auto-applies the matching window-border (xfwm4) theme when a package ships one.
+- New tab: Icons & Cursors — list, activate and install icon and cursor themes; cursor rows preview the theme's real pointer bitmap.
+- New tab: Login Screen (LightDM) — edits the LightDM GTK greeter directly: background, theme/icons/cursor/font, user avatar, login-box position (visual anchor picker with live preview), clock format.
+- Panel tab: full restructure — grouped Position/Appearance/Behavior cards, live position preview, segmented panel selector, plugin descriptions and double-click-to-add.
+- Dock tab: live horizontal dock preview above the pinned-apps list.
+- Fixed: switching to certain tabs could grow the app window and never shrink it back; every tab now scrolls or adapts instead of resizing the window.
+- Fixed: the app no longer stays dark when the system's active GTK theme is light — detects the real active theme on launch and refreshes live after activating a theme from GTK Themes or Themes.
+- `.sth` bundles can now be opened straight from a file manager (registered `application/x-soplos-theme` MIME type); opening one switches to the Themes tab and starts the install flow.
+- Added `build-deb.sh`, a manual `.deb` builder for this app, since `soplos-packager` 1.0.1 doesn't support MIME registration yet.
 
 ### v2.0.1-4 (2026-07-07)
 - Build dependency `python3-all` replaced with `python3`.

@@ -15,3 +15,6 @@ __pycache__/
 # Node / build
 node_modules/
 dist/
+
+# Local Debian build script
+build-deb.sh

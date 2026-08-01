@@ -8,7 +8,7 @@ Build-Depends: debhelper-compat (= 13),
                python3-setuptools
 
 Package: soplos-theme-manager
-Version: 2.0.1-4
+Version: 2.0.1-5
 Architecture: all
 Depends: ${python3:Depends},
          ${misc:Depends},
@@ -22,13 +22,14 @@ Depends: ${python3:Depends},
          imagemagick,
          wmctrl,
          libnotify-bin,
-         polkitd
+         polkitd,
+         shared-mime-info,
+         desktop-file-utils
 Description: Soplos Theme Manager
  A graphical tool to manage desktop themes in Soplos Linux Tyron (XFCE).
  Features include:
   * Apply, create, export and import complete XFCE desktop themes
   * Built-in wallpaper browser and selector
-  * Avatar manager replacing Mugshot
   * Panel and Dock configuration (Docklike integration)
   * Theme export/import as .sth bundles
   * Screenshot-based theme previews

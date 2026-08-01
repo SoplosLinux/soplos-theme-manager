@@ -1,0 +1,823 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the soplos-theme-manager package.
+# Sergi Perich <info@soploslinux.com>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: soplos-theme-manager 2.0.1-5\n"
+"Report-Msgid-Bugs-To: info@soploslinux.com\n"
+"POT-Creation-Date: 2026-08-01 06:58+0200\n"
+"PO-Revision-Date: 2026-08-01 12:00+0200\n"
+"Last-Translator: Sergi Perich <info@soploslinux.com>\n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: main.py:36
+#, python-brace-format
+msgid ""
+"Failed to start:\n"
+"{error}"
+msgstr ""
+"Échec du démarrage :\n"
+"{error}"
+
+#: services/screenshot_service.py:34
+#, python-brace-format
+msgid "Taking screenshot in {n} seconds…"
+msgstr "Capture d'écran dans {n} secondes…"
+
+#: ui/main_window.py:52
+msgid "Themes"
+msgstr "Thèmes"
+
+#: ui/main_window.py:53
+msgid "Wallpapers"
+msgstr "Fonds d'écran"
+
+#: ui/main_window.py:54 ui/tabs/gtk_themes_tab.py:50
+msgid "GTK Themes"
+msgstr "Thèmes GTK"
+
+#: ui/main_window.py:55
+msgid "Icons & Cursors"
+msgstr "Icônes et curseurs"
+
+#: ui/main_window.py:56
+msgid "Panel"
+msgstr "Panneau"
+
+#: ui/main_window.py:57
+msgid "Dock"
+msgstr "Dock"
+
+#: ui/main_window.py:58
+msgid "Login Screen"
+msgstr "Écran de connexion"
+
+#: ui/main_window.py:153
+msgid "Working…"
+msgstr "Traitement en cours…"
+
+#: ui/main_window.py:180
+msgid "Soplos Linux Tyron — XFCE"
+msgstr "Soplos Linux Tyron — XFCE"
+
+#: ui/main_window.py:232
+msgid "Desktop theme manager for Soplos Linux Tyron."
+msgstr "Gestionnaire de thèmes de bureau pour Soplos Linux Tyron."
+
+#: ui/main_window.py:235
+msgid "Author"
+msgstr "Auteur"
+
+#: ui/tabs/docklike_tab.py:44
+msgid "Docklike plugin is not active in your panel."
+msgstr "Le greffon Docklike n'est pas actif dans votre panneau."
+
+#: ui/tabs/docklike_tab.py:48
+msgid "Add the Docklike Taskbar plugin to your XFCE panel to use this feature."
+msgstr "Ajoutez le greffon Docklike Taskbar à votre panneau XFCE pour utiliser cette fonctionnalité."
+
+#: ui/tabs/docklike_tab.py:57 ui/tabs/themes_tab.py:141
+msgid "Refresh"
+msgstr "Actualiser"
+
+#: ui/tabs/docklike_tab.py:74
+msgid "Dock preview"
+msgstr "Aperçu du dock"
+
+#: ui/tabs/docklike_tab.py:75
+msgid "how it will look on screen"
+msgstr "comment il apparaîtra à l'écran"
+
+#: ui/tabs/docklike_tab.py:111
+msgid "Pinned Applications"
+msgstr "Applications épinglées"
+
+#: ui/tabs/docklike_tab.py:156 ui/tabs/panel_tab.py:600
+msgid "Move Up"
+msgstr "Monter"
+
+#: ui/tabs/docklike_tab.py:157 ui/tabs/panel_tab.py:601
+msgid "Move Down"
+msgstr "Descendre"
+
+#: ui/tabs/docklike_tab.py:158 ui/tabs/panel_tab.py:602
+#: ui/tabs/themes_tab.py:132
+msgid "Remove"
+msgstr "Supprimer"
+
+#: ui/tabs/docklike_tab.py:178
+msgid "Available Applications"
+msgstr "Applications disponibles"
+
+#: ui/tabs/docklike_tab.py:186
+msgid "Search applications…"
+msgstr "Rechercher des applications…"
+
+#: ui/tabs/docklike_tab.py:230
+msgid "Pin to Dock"
+msgstr "Épingler au dock"
+
+#: ui/tabs/docklike_tab.py:246 ui/tabs/lightdm_tab.py:305
+#: ui/tabs/panel_tab.py:518
+msgid "Save & Apply"
+msgstr "Enregistrer et appliquer"
+
+#: ui/tabs/docklike_tab.py:278
+msgid "Loading…"
+msgstr "Chargement…"
+
+#: ui/tabs/docklike_tab.py:297 ui/tabs/docklike_tab.py:311
+#, python-brace-format
+msgid "{n} pinned"
+msgstr "{n} épinglées"
+
+#: ui/tabs/docklike_tab.py:323
+msgid "Your dock is empty — pin an app below"
+msgstr "Votre dock est vide — épinglez une application ci-dessous"
+
+#: ui/tabs/docklike_tab.py:386
+msgid "Removed. Click 'Save & Apply' to confirm."
+msgstr "Supprimée. Cliquez sur « Enregistrer et appliquer » pour confirmer."
+
+#: ui/tabs/docklike_tab.py:402
+#, python-brace-format
+msgid "Already pinned: {name}"
+msgstr "Déjà épinglée : {name}"
+
+#: ui/tabs/docklike_tab.py:406
+#, python-brace-format
+msgid "Added: {name}. Click 'Save & Apply' to confirm."
+msgstr "Ajoutée : {name}. Cliquez sur « Enregistrer et appliquer » pour confirmer."
+
+#: ui/tabs/docklike_tab.py:413
+msgid "Saved and applied"
+msgstr "Enregistré et appliqué"
+
+#: ui/tabs/docklike_tab.py:415
+msgid "Error saving configuration"
+msgstr "Erreur lors de l'enregistrement de la configuration"
+
+#: ui/tabs/gtk_themes_tab.py:83 ui/tabs/icons_cursors_tab.py:101
+msgid "Activate"
+msgstr "Activer"
+
+#: ui/tabs/gtk_themes_tab.py:92 ui/tabs/icons_cursors_tab.py:110
+msgid "Install package…"
+msgstr "Installer un paquet…"
+
+#: ui/tabs/gtk_themes_tab.py:97
+msgid ""
+"Some themes also ship matching window-border colors — those are applied "
+"automatically together."
+msgstr ""
+"Certains thèmes incluent aussi des couleurs de bordure de fenêtre assorties "
+"— celles-ci sont appliquées automatiquement en même temps."
+
+#: ui/tabs/gtk_themes_tab.py:111
+msgid "Reading installed GTK themes…"
+msgstr "Lecture des thèmes GTK installés…"
+
+#: ui/tabs/gtk_themes_tab.py:133 ui/tabs/icons_cursors_tab.py:254
+#, python-brace-format
+msgid "{n} installed — active: {active}"
+msgstr "{n} installés — actif : {active}"
+
+#: ui/tabs/gtk_themes_tab.py:133 ui/tabs/icons_cursors_tab.py:255
+msgid "none"
+msgstr "aucun"
+
+#: ui/tabs/gtk_themes_tab.py:160 ui/tabs/icons_cursors_tab.py:286
+msgid "Currently active"
+msgstr "Actuellement actif"
+
+#: ui/tabs/gtk_themes_tab.py:172 ui/tabs/icons_cursors_tab.py:299
+msgid "Activating…"
+msgstr "Activation…"
+
+#: ui/tabs/gtk_themes_tab.py:183 ui/tabs/icons_cursors_tab.py:313
+msgid "Error activating theme."
+msgstr "Erreur lors de l'activation du thème."
+
+#: ui/tabs/gtk_themes_tab.py:198 ui/tabs/icons_cursors_tab.py:322
+msgid "Select a package to install"
+msgstr "Sélectionnez un paquet à installer"
+
+#: ui/tabs/gtk_themes_tab.py:208
+msgid "GTK theme packages (.tar.gz, .tar.xz, .zip…)"
+msgstr "Paquets de thèmes GTK (.tar.gz, .tar.xz, .zip…)"
+
+#: ui/tabs/gtk_themes_tab.py:219 ui/tabs/icons_cursors_tab.py:343
+msgid "Reading package…"
+msgstr "Lecture du paquet…"
+
+#: ui/tabs/gtk_themes_tab.py:233
+msgid ""
+"No installable GTK theme was found in this package.\n"
+"\n"
+"Some packages only ship source files and need their own install script to be "
+"built, which Theme Manager does not run for safety reasons — install those "
+"manually."
+msgstr ""
+"Aucun thème GTK installable n'a été trouvé dans ce paquet.\n"
+"\n"
+"Certains paquets ne fournissent que des fichiers sources et nécessitent leur "
+"propre script d'installation à compiler, ce que Theme Manager n'exécute pas "
+"pour des raisons de sécurité — installez-les manuellement."
+
+#: ui/tabs/gtk_themes_tab.py:250 ui/tabs/icons_cursors_tab.py:374
+msgid "Installing…"
+msgstr "Installation…"
+
+#: ui/tabs/gtk_themes_tab.py:261 ui/tabs/icons_cursors_tab.py:385
+msgid "Themes found in this package"
+msgstr "Thèmes trouvés dans ce paquet"
+
+#: ui/tabs/gtk_themes_tab.py:266 ui/tabs/gtk_themes_tab.py:304
+#: ui/tabs/icons_cursors_tab.py:390 ui/tabs/icons_cursors_tab.py:428
+#: ui/tabs/themes_tab.py:379
+msgid "Cancel"
+msgstr "Annuler"
+
+#: ui/tabs/gtk_themes_tab.py:267 ui/tabs/icons_cursors_tab.py:391
+msgid "Install selected"
+msgstr "Installer la sélection"
+
+#: ui/tabs/gtk_themes_tab.py:278 ui/tabs/icons_cursors_tab.py:402
+#, python-brace-format
+msgid "This package contains {n} theme(s). Choose which to install:"
+msgstr "Ce paquet contient {n} thème(s). Choisissez lesquels installer :"
+
+#: ui/tabs/gtk_themes_tab.py:285
+msgid " (includes window border)"
+msgstr " (inclut la bordure de fenêtre)"
+
+#: ui/tabs/gtk_themes_tab.py:299 ui/tabs/icons_cursors_tab.py:423
+#: ui/tabs/themes_tab.py:374
+msgid "Installation scope"
+msgstr "Portée de l'installation"
+
+#: ui/tabs/gtk_themes_tab.py:305 ui/tabs/icons_cursors_tab.py:429
+#: ui/tabs/themes_tab.py:380
+msgid "Current user"
+msgstr "Utilisateur actuel"
+
+#: ui/tabs/gtk_themes_tab.py:306 ui/tabs/icons_cursors_tab.py:430
+#: ui/tabs/themes_tab.py:381
+msgid "Global (recommended)"
+msgstr "Global (recommandé)"
+
+#: ui/tabs/gtk_themes_tab.py:317 ui/tabs/icons_cursors_tab.py:441
+msgid "Where should the theme(s) be installed?"
+msgstr "Où les thèmes doivent-ils être installés ?"
+
+#: ui/tabs/gtk_themes_tab.py:335 ui/tabs/icons_cursors_tab.py:459
+#, python-brace-format
+msgid "Installed. These were already present and left untouched: {names}"
+msgstr "Installé. Ceux-ci étaient déjà présents et n'ont pas été modifiés : {names}"
+
+#: ui/tabs/gtk_themes_tab.py:340 ui/tabs/icons_cursors_tab.py:464
+msgid "Error installing the package."
+msgstr "Erreur lors de l'installation du paquet."
+
+#: ui/tabs/icons_cursors_tab.py:49
+msgid "Icon Themes"
+msgstr "Thèmes d'icônes"
+
+#: ui/tabs/icons_cursors_tab.py:53
+msgid "Cursor Themes"
+msgstr "Thèmes de curseur"
+
+#: ui/tabs/icons_cursors_tab.py:126
+msgid "Reading installed themes…"
+msgstr "Lecture des thèmes installés…"
+
+#: ui/tabs/icons_cursors_tab.py:332
+msgid "Icon/cursor packages (.tar.gz, .tar.xz, .zip…)"
+msgstr "Paquets d'icônes/curseurs (.tar.gz, .tar.xz, .zip…)"
+
+#: ui/tabs/icons_cursors_tab.py:357
+msgid ""
+"No installable icon or cursor theme was found in this package.\n"
+"\n"
+"Some packages only ship source files and need their own install script to be "
+"built, which Theme Manager does not run for safety reasons — install those "
+"manually."
+msgstr ""
+"Aucun thème d'icônes ou de curseur installable n'a été trouvé dans ce "
+"paquet.\n"
+"\n"
+"Certains paquets ne fournissent que des fichiers sources et nécessitent "
+"leur propre script d'installation à compiler, ce que Theme Manager "
+"n'exécute pas pour des raisons de sécurité — installez-les manuellement."
+
+#: ui/tabs/icons_cursors_tab.py:409
+msgid "Icon theme"
+msgstr "Thème d'icônes"
+
+#: ui/tabs/icons_cursors_tab.py:409
+msgid "Cursor theme"
+msgstr "Thème de curseur"
+
+#: ui/tabs/lightdm_tab.py:109
+msgid "Login Screen (LightDM)"
+msgstr "Écran de connexion (LightDM)"
+
+#: ui/tabs/lightdm_tab.py:116
+msgid "These settings only affect the login screen, not your desktop session."
+msgstr "Ces paramètres n'affectent que l'écran de connexion, pas votre session de bureau."
+
+#: ui/tabs/lightdm_tab.py:143
+msgid "Change background…"
+msgstr "Changer le fond d'écran…"
+
+#: ui/tabs/lightdm_tab.py:158
+msgid "Change user image…"
+msgstr "Changer l'image utilisateur…"
+
+#: ui/tabs/lightdm_tab.py:178
+msgid "GTK theme:"
+msgstr "Thème GTK :"
+
+#: ui/tabs/lightdm_tab.py:181
+msgid "Icon theme:"
+msgstr "Thème d'icônes :"
+
+#: ui/tabs/lightdm_tab.py:184
+msgid "Cursor theme:"
+msgstr "Thème de curseur :"
+
+#: ui/tabs/lightdm_tab.py:187
+msgid "Font:"
+msgstr "Police :"
+
+#: ui/tabs/lightdm_tab.py:202
+msgid "Login Box Position"
+msgstr "Position de la boîte de connexion"
+
+#: ui/tabs/lightdm_tab.py:274
+msgid "Horizontal offset (%):"
+msgstr "Décalage horizontal (%) :"
+
+#: ui/tabs/lightdm_tab.py:278
+msgid "Vertical offset (%):"
+msgstr "Décalage vertical (%) :"
+
+#: ui/tabs/lightdm_tab.py:281
+msgid "Show user avatar:"
+msgstr "Afficher l'avatar de l'utilisateur :"
+
+#: ui/tabs/lightdm_tab.py:284
+msgid "Use each user's own wallpaper:"
+msgstr "Utiliser le fond d'écran propre à chaque utilisateur :"
+
+#: ui/tabs/lightdm_tab.py:288
+msgid "Clock format:"
+msgstr "Format de l'horloge :"
+
+#: ui/tabs/lightdm_tab.py:319
+msgid "Reading login screen settings…"
+msgstr "Lecture des paramètres de l'écran de connexion…"
+
+#: ui/tabs/lightdm_tab.py:450
+msgid "Select background image"
+msgstr "Sélectionnez une image de fond"
+
+#: ui/tabs/lightdm_tab.py:456
+msgid "Select user image"
+msgstr "Sélectionnez une image utilisateur"
+
+#: ui/tabs/lightdm_tab.py:470 ui/tabs/wallpapers_tab.py:259
+msgid "Images"
+msgstr "Images"
+
+#: ui/tabs/lightdm_tab.py:502
+msgid "Applying login screen settings…"
+msgstr "Application des paramètres de l'écran de connexion…"
+
+#: ui/tabs/lightdm_tab.py:513
+msgid "Saved"
+msgstr "Enregistré"
+
+#: ui/tabs/lightdm_tab.py:513
+msgid "Error saving login screen settings"
+msgstr "Erreur lors de l'enregistrement des paramètres de l'écran de connexion"
+
+#: ui/tabs/panel_tab.py:363
+msgid "Add new panel"
+msgstr "Ajouter un nouveau panneau"
+
+#: ui/tabs/panel_tab.py:369
+msgid "Delete this panel"
+msgstr "Supprimer ce panneau"
+
+#: ui/tabs/panel_tab.py:436
+msgid "Position"
+msgstr "Position"
+
+#: ui/tabs/panel_tab.py:436
+msgid "where the panel lives"
+msgstr "où se trouve le panneau"
+
+#: ui/tabs/panel_tab.py:439
+msgid "Top"
+msgstr "Haut"
+
+#: ui/tabs/panel_tab.py:439
+msgid "Bottom"
+msgstr "Bas"
+
+#: ui/tabs/panel_tab.py:439 ui/tabs/panel_tab.py:446
+msgid "Left"
+msgstr "Gauche"
+
+#: ui/tabs/panel_tab.py:439 ui/tabs/panel_tab.py:446
+msgid "Right"
+msgstr "Droite"
+
+#: ui/tabs/panel_tab.py:443
+msgid "Position:"
+msgstr "Position :"
+
+#: ui/tabs/panel_tab.py:446
+msgid "Center"
+msgstr "Centre"
+
+#: ui/tabs/panel_tab.py:450
+msgid "Alignment:"
+msgstr "Alignement :"
+
+#: ui/tabs/panel_tab.py:455
+msgid "Length (%):"
+msgstr "Longueur (%) :"
+
+#: ui/tabs/panel_tab.py:461
+msgid "Lock position:"
+msgstr "Verrouiller la position :"
+
+#: ui/tabs/panel_tab.py:464
+msgid "Appearance"
+msgstr "Apparence"
+
+#: ui/tabs/panel_tab.py:464
+msgid "size and style"
+msgstr "taille et style"
+
+#: ui/tabs/panel_tab.py:467
+msgid "Horizontal"
+msgstr "Horizontal"
+
+#: ui/tabs/panel_tab.py:467
+msgid "Vertical"
+msgstr "Vertical"
+
+#: ui/tabs/panel_tab.py:467
+msgid "Deskbar"
+msgstr "Barre de bureau"
+
+#: ui/tabs/panel_tab.py:470
+msgid "Mode:"
+msgstr "Mode :"
+
+#: ui/tabs/panel_tab.py:474
+msgid "Height (px):"
+msgstr "Hauteur (px) :"
+
+#: ui/tabs/panel_tab.py:478
+msgid "Icon size (px):"
+msgstr "Taille des icônes (px) :"
+
+#: ui/tabs/panel_tab.py:482
+msgid "Rows:"
+msgstr "Lignes :"
+
+#: ui/tabs/panel_tab.py:488
+msgid "Dark mode:"
+msgstr "Mode sombre :"
+
+#: ui/tabs/panel_tab.py:491
+msgid "Behavior"
+msgstr "Comportement"
+
+#: ui/tabs/panel_tab.py:491
+msgid "when it hides"
+msgstr "quand il se cache"
+
+#: ui/tabs/panel_tab.py:494
+msgid "Never"
+msgstr "Jamais"
+
+#: ui/tabs/panel_tab.py:494
+msgid "Intelligent"
+msgstr "Intelligent"
+
+#: ui/tabs/panel_tab.py:494
+msgid "Always"
+msgstr "Toujours"
+
+#: ui/tabs/panel_tab.py:497
+msgid "Auto-hide:"
+msgstr "Masquage automatique :"
+
+#: ui/tabs/panel_tab.py:503
+msgid "Auto-expand:"
+msgstr "Expansion automatique :"
+
+#: ui/tabs/panel_tab.py:541
+msgid "Panel Plugins"
+msgstr "Greffons du panneau"
+
+#: ui/tabs/panel_tab.py:561
+msgid "Active (drag to reorder)"
+msgstr "Actifs (glisser pour réorganiser)"
+
+#: ui/tabs/panel_tab.py:603
+msgid "Settings"
+msgstr "Paramètres"
+
+#: ui/tabs/panel_tab.py:623
+msgid "Available"
+msgstr "Disponibles"
+
+#: ui/tabs/panel_tab.py:627
+msgid "double-click to add"
+msgstr "double-cliquer pour ajouter"
+
+#: ui/tabs/panel_tab.py:634
+msgid "Search plugins…"
+msgstr "Rechercher des greffons…"
+
+#: ui/tabs/panel_tab.py:684
+msgid "Add to Panel"
+msgstr "Ajouter au panneau"
+
+#: ui/tabs/panel_tab.py:696 ui/tabs/panel_tab.py:751
+msgid "Reading panel settings…"
+msgstr "Lecture des paramètres du panneau…"
+
+#: ui/tabs/panel_tab.py:738
+#, python-brace-format
+msgid "Panel {n}"
+msgstr "Panneau {n}"
+
+#: ui/tabs/panel_tab.py:763
+msgid "start"
+msgstr "début"
+
+#: ui/tabs/panel_tab.py:763
+msgid "center"
+msgstr "centre"
+
+#: ui/tabs/panel_tab.py:763
+msgid "end"
+msgstr "fin"
+
+#: ui/tabs/panel_tab.py:766
+msgid "top"
+msgstr "haut"
+
+#: ui/tabs/panel_tab.py:767
+msgid "bottom"
+msgstr "bas"
+
+#: ui/tabs/panel_tab.py:768
+msgid "left"
+msgstr "gauche"
+
+#: ui/tabs/panel_tab.py:769
+msgid "right"
+msgstr "droite"
+
+#: ui/tabs/panel_tab.py:773
+#, python-brace-format
+msgid "Full width on the <b>{edge}</b> edge."
+msgstr "Pleine largeur sur le bord <b>{edge}</b>."
+
+#: ui/tabs/panel_tab.py:777
+#, python-brace-format
+msgid "{length}% wide, {align}-aligned on the <b>{edge}</b> edge."
+msgstr "{length}% de largeur, aligné à {align} sur le bord <b>{edge}</b>."
+
+#: ui/tabs/panel_tab.py:1110
+msgid "Applying panel settings…"
+msgstr "Application des paramètres du panneau…"
+
+#: ui/tabs/panel_tab.py:1150
+msgid "Adding panel…"
+msgstr "Ajout du panneau…"
+
+#: ui/tabs/panel_tab.py:1194
+#, python-brace-format
+msgid "Delete {pk}?"
+msgstr "Supprimer {pk} ?"
+
+#: ui/tabs/panel_tab.py:1196
+msgid "This will remove the panel and all its plugins."
+msgstr "Cela supprimera le panneau et tous ses greffons."
+
+#: ui/tabs/panel_tab.py:1204
+msgid "Deleting panel…"
+msgstr "Suppression du panneau…"
+
+#: ui/tabs/panel_tab.py:1248
+msgid "Some settings could not be applied."
+msgstr "Certains paramètres n'ont pas pu être appliqués."
+
+#: ui/tabs/themes_tab.py:130
+msgid "Apply"
+msgstr "Appliquer"
+
+#: ui/tabs/themes_tab.py:131
+msgid "New"
+msgstr "Nouveau"
+
+#: ui/tabs/themes_tab.py:139
+msgid "Export ↑"
+msgstr "Exporter ↑"
+
+#: ui/tabs/themes_tab.py:140
+msgid "Install ↓"
+msgstr "Installer ↓"
+
+#: ui/tabs/themes_tab.py:142
+msgid "Restore"
+msgstr "Restaurer"
+
+#: ui/tabs/themes_tab.py:146
+msgid "Loading themes…"
+msgstr "Chargement des thèmes…"
+
+#: ui/tabs/themes_tab.py:161
+#, python-brace-format
+msgid "{n} themes available"
+msgstr "{n} thèmes disponibles"
+
+#: ui/tabs/themes_tab.py:172 ui/tabs/themes_tab.py:267
+#: ui/tabs/themes_tab.py:295
+msgid "Select a theme first"
+msgstr "Sélectionnez d'abord un thème"
+
+#: ui/tabs/themes_tab.py:176
+#, python-brace-format
+msgid "Applying {name}…"
+msgstr "Application de {name}…"
+
+#: ui/tabs/themes_tab.py:188
+#, python-brace-format
+msgid "Applied: {name}"
+msgstr "Appliqué : {name}"
+
+#: ui/tabs/themes_tab.py:195
+msgid "Error applying theme"
+msgstr "Erreur lors de l'application du thème"
+
+#: ui/tabs/themes_tab.py:199
+msgid "Save Current Theme"
+msgstr "Enregistrer le thème actuel"
+
+#: ui/tabs/themes_tab.py:217
+msgid "Theme name:"
+msgstr "Nom du thème :"
+
+#: ui/tabs/themes_tab.py:219
+msgid "My Theme"
+msgstr "Mon thème"
+
+#: ui/tabs/themes_tab.py:222
+msgid "Take screenshot for preview"
+msgstr "Prendre une capture pour l'aperçu"
+
+#: ui/tabs/themes_tab.py:235
+msgid "Saving theme…"
+msgstr "Enregistrement du thème…"
+
+#: ui/tabs/themes_tab.py:249
+msgid "Taking screenshot…"
+msgstr "Capture d'écran en cours…"
+
+#: ui/tabs/themes_tab.py:263
+msgid "Error saving theme"
+msgstr "Erreur lors de l'enregistrement du thème"
+
+#: ui/tabs/themes_tab.py:276
+msgid "Remove theme?"
+msgstr "Supprimer le thème ?"
+
+#: ui/tabs/themes_tab.py:279
+#, python-brace-format
+msgid "'{name}' will be permanently deleted."
+msgstr "« {name} » sera définitivement supprimé."
+
+#: ui/tabs/themes_tab.py:291
+msgid "Error removing theme"
+msgstr "Erreur lors de la suppression du thème"
+
+#: ui/tabs/themes_tab.py:300
+msgid "Export Theme"
+msgstr "Exporter le thème"
+
+#: ui/tabs/themes_tab.py:312 ui/tabs/themes_tab.py:344
+msgid "Soplos Theme Bundle (*.sth)"
+msgstr "Paquet de thème Soplos (*.sth)"
+
+#: ui/tabs/themes_tab.py:319
+#, python-brace-format
+msgid "Exporting {name}…"
+msgstr "Exportation de {name}…"
+
+#: ui/tabs/themes_tab.py:328
+#, python-brace-format
+msgid "Export error: {e}"
+msgstr "Erreur d'exportation : {e}"
+
+#: ui/tabs/themes_tab.py:335
+msgid "Install Theme"
+msgstr "Installer un thème"
+
+#: ui/tabs/themes_tab.py:364
+msgid "Installing theme…"
+msgstr "Installation du thème…"
+
+#: ui/tabs/themes_tab.py:392
+msgid "Where should the theme assets be installed?"
+msgstr "Où les ressources du thème doivent-elles être installées ?"
+
+#: ui/tabs/themes_tab.py:409
+#, python-brace-format
+msgid "Install error: {e}"
+msgstr "Erreur d'installation : {e}"
+
+#: ui/tabs/themes_tab.py:418 ui/tabs/themes_tab.py:423
+msgid "No base themes found."
+msgstr "Aucun thème de base trouvé."
+
+#: ui/tabs/themes_tab.py:426
+msgid "Restoring base themes…"
+msgstr "Restauration des thèmes de base…"
+
+#: ui/tabs/themes_tab.py:456
+msgid "All base themes are already present."
+msgstr "Tous les thèmes de base sont déjà présents."
+
+#: ui/tabs/wallpapers_tab.py:95
+msgid "Folder:"
+msgstr "Dossier :"
+
+#: ui/tabs/wallpapers_tab.py:98
+msgid "Select wallpaper folder"
+msgstr "Sélectionnez le dossier des fonds d'écran"
+
+#: ui/tabs/wallpapers_tab.py:138
+msgid "Set Wallpaper"
+msgstr "Définir comme fond d'écran"
+
+#: ui/tabs/wallpapers_tab.py:147
+msgid "Install Wallpaper"
+msgstr "Installer un fond d'écran"
+
+#: ui/tabs/wallpapers_tab.py:168
+msgid "Scanning wallpapers…"
+msgstr "Recherche des fonds d'écran…"
+
+#: ui/tabs/wallpapers_tab.py:217
+#, python-brace-format
+msgid "{n} wallpapers found"
+msgstr "{n} fonds d'écran trouvés"
+
+#: ui/tabs/wallpapers_tab.py:231
+msgid "Select a wallpaper first"
+msgstr "Sélectionnez d'abord un fond d'écran"
+
+#: ui/tabs/wallpapers_tab.py:234
+msgid "Applying wallpaper…"
+msgstr "Application du fond d'écran…"
+
+#: ui/tabs/wallpapers_tab.py:242
+msgid "Wallpaper applied"
+msgstr "Fond d'écran appliqué"
+
+#: ui/tabs/wallpapers_tab.py:242
+msgid "Error applying wallpaper"
+msgstr "Erreur lors de l'application du fond d'écran"
+
+#: ui/tabs/wallpapers_tab.py:248
+msgid "Select wallpapers to install"
+msgstr "Sélectionnez les fonds d'écran à installer"
+
+#: ui/tabs/wallpapers_tab.py:270
+msgid "Installing wallpapers…"
+msgstr "Installation des fonds d'écran…"
+
+#: ui/tabs/wallpapers_tab.py:281
+msgid "Wallpapers installed"
+msgstr "Fonds d'écran installés"
+
+#: ui/tabs/wallpapers_tab.py:285
+#, python-brace-format
+msgid "Error installing wallpapers: {e}"
+msgstr "Erreur lors de l'installation des fonds d'écran : {e}"

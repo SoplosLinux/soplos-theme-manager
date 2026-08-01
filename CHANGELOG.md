@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1-5] - 2026-07-20
+
+### Removed
+- **User tab**: removed the avatar/user data manager tab (`ui/tabs/avatar_tab.py`). It managed OS user account data (name, email, phone, avatar, group membership) unrelated to desktop theme personalization, which is this application's scope.
+
+### Added
+- **Wallpapers tab — SVG support**: the wallpaper scanner now recognizes `.svg` files alongside `.jpg`, `.jpeg`, `.png`, `.webp` and `.bmp`.
+- **Wallpapers tab — Install Wallpaper button**: new button opens a multi-select file chooser and installs the selected images into `/usr/share/backgrounds` via a single `pkexec` call (one authentication prompt for any number of files). `ThemeExportService.install_wallpapers_system()` added for this.
+- **New tab — GTK Themes**: lists, activates and installs GTK widget themes. Detection uses the presence of a `gtk-3.0/` or `gtk-2.0/` subdirectory rather than `index.theme` (verified against the real system: only 6 of 19 installed themes in `/usr/share/themes` ship an `index.theme`). Activating a theme that also ships an `xfwm4/` folder applies the matching window-border theme automatically. Package install accepts `.tar.gz`/`.tar.xz`/`.tar.bz2`/`.zip`, extracts to an isolated temp dir with path-traversal protection, and scans recursively for installable theme directories — packages that only ship source and need their own `install.sh` (e.g. Colloid, Orchis from source) are reported as not installable rather than executing third-party scripts. New `services/gtk_theme_service.py`.
+- **New tab — Icons & Cursors**: lists, activates and installs icon and cursor themes, same package-install mechanism as GTK Themes (recursive `index.theme` scan, never overwrites an already-installed theme, never runs bundled scripts). Icon theme rows show a real preview (the theme's own "folder" icon via a per-row `Gtk.IconTheme`). Cursor theme rows show the theme's actual pointer bitmap, rendered by parsing the Xcursor binary file format directly (GTK has no API to preview an arbitrary, non-active cursor theme). New `services/icon_cursor_service.py`.
+- **New tab — Login Screen (LightDM)**: edits `/etc/lightdm/lightdm-gtk-greeter.conf` directly (background, GTK/icon/cursor theme, user avatar, font, login-box position, show-avatar toggle, per-user wallpaper toggle, clock format). Theme/icon/cursor pickers reuse the services above instead of re-scanning. Login-box position has a 3×3 anchor grid plus percent offsets and a live on-screen preview; the position string format (`"5%,start 50%,center"` on this system) was reverse-engineered from `lightdm-gtk-greeter-settings`' own `PositionEntry.py` and round-trip verified against the real config. Writes always go through `pkexec` (the file is root:root). New `services/lightdm_service.py`.
+- **Panel tab — full restructure**: settings are now grouped into three cards (Position / Appearance / Behavior) instead of one flat 11-row list; a live preview draws where the panel will sit on screen as Position/Alignment/Length change; the panel selector became a segmented pill switcher (was a combo box); the plugin list shows each available plugin's description inline and supports double-click to add, not just the "Add to Panel" button.
+- **Dock tab — live horizontal preview**: a rounded floating-bar preview above the pinned-apps list mirrors the actual dock in real time (updates on add/remove/drag-reorder).
+- **`.sth` files can now be opened from a file manager**: registered the `application/x-soplos-theme` MIME type (`debian/org.soplos.thememanager.xml`, glob `*.sth`, icon `application-x-soplos-theme` in three `hicolor` sizes) and added `MimeType=`/`Exec=... %f` to the `.desktop`. `core/application.py` now sets `Gio.ApplicationFlags.HANDLES_OPEN` and implements `do_open()`: opening a `.sth` switches to the Themes tab and starts the install flow (scope dialog included) in the already-running instance if there is one, or a fresh one otherwise. `ui/tabs/themes_tab.py`'s install logic was split into a reusable `install_bundle_path()` shared by the file-chooser button and `do_open()`.
+- **`build-deb.sh`**: manual `.deb` builder for this app specifically, added because `soplos-packager` 1.0.1 cannot package MIME registration correctly (no `/usr/share/mime/packages/` support, no maintainer scripts, and it would copy the MIME icon into `hicolor/<size>/apps/` instead of `mimetypes/`) — confirmed by reading `soplos-packager`'s own `src/packaging/debian.py`, not assumed. The script derives `DEBIAN/control` from `debian/control` (single source of truth for the dependency list and version, with the debhelper-only `${python3:Depends}`/`${misc:Depends}` substvars filtered out and `Installed-Size` computed from the staged payload) and generates `postinst`/`postrm` running `update-mime-database`, `update-desktop-database` and `gtk-update-icon-cache`. Installs the `.desktop` as `org.soplos.thememanager.desktop` (no hyphen) to match the AppStream `<launchable>`, which pointed at a filename the hyphenated `debian/org.soplos.theme-manager.desktop` source file didn't produce. Does not touch `soplos-packager` itself — that tool needs the equivalent support added in its own 2.0, out of scope here.
+- `debian/control`: added `shared-mime-info` and `desktop-file-utils` to `Depends` (needed by the postinst/postrm hooks above).
+
+- **Full translation to 8 languages**: all 188 translatable strings in the application (`main.py`, `services/`, `ui/main_window.py`, all `ui/tabs/*.py` — including the three new tabs above) are now translated into Spanish, English, French, Portuguese, German, Italian, Russian and Romanian (`locale/<lang>/LC_MESSAGES/soplos-theme-manager.po` + compiled `.mo`), matching `core/i18n_manager.py`'s `SUPPORTED_LANGUAGES`.
+
+### Fixed
+- **Window no longer grows/deforms when switching tabs**: the restructured Panel tab (and the three new tabs) could exceed the app's default window height, and GTK would silently grow the window to fit — it never shrank back on returning to a shorter tab. Every tab's content is now wrapped so a short window scrolls instead of resizing the window; list-based tabs (Panel's plugin lists, Icons & Cursors, GTK Themes) expand to fill extra space on a maximized window, while the single-form LightDM tab centers instead, since a form has nothing that meaningfully "grows".
+- Icon-name markup crash-adjacent `Gtk-WARNING` spam in the Panel plugin list (`<small alpha=...>` is not valid Pango markup; `<span alpha=... size='small'>` is).
+
+### Changed
+- README, `debian/control` and `debian/org.soplos.thememanager.metainfo.xml` updated to no longer describe an avatar/user manager feature.
+- `assets/themes/base.css`: added `.docklike-preview-bar`, a theme-agnostic rounded-bar style shared by the Dock preview and the Icons & Cursors / GTK Themes list containers.
+
+---
+
 ## [2.0.1-4] - 2026-07-07
 
 ### Changed
